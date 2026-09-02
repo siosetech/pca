@@ -7,6 +7,9 @@ lab/**/data/
 # Grafana
 lab/grafana/grafana.db
 
+# Rendered journal output
+build/
+
 # Local scratch
 scratch/
 *.local.md

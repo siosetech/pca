@@ -1,0 +1,30 @@
+= PCA Lab Journal
+fatih
+:toc: left
+:toclevels: 3
+:sectnums:
+:sectanchors:
+:icons: font
+:source-highlighter: rouge
+:experimental:
+:imagesdir: images
+:docinfo: shared
+
+A running record of building and breaking a Prometheus lab while preparing for
+the Prometheus Certified Associate exam.
+
+This is the *narrative* half of the repository. The split is deliberate:
+
+[cols="1,3"]
+|===
+| `docs/` | What I need to know for the exam. Reference, written to be revised from.
+| `lab/`  | The runnable stack, plus a terse troubleshooting table for lookups.
+| `journal/` | What I actually did, in order, with evidence. Story, not reference.
+|===
+
+Where an entry and `lab/README.md` cover the same incident, the README holds the
+fix and this holds the reasoning and the screenshots. Neither repeats the other.
+
+include::entries/001-lab-bootstrap.adoc[leveloffset=+1]
+
+include::entries/002-podman-rootless-ports.adoc[leveloffset=+1]

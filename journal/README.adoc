@@ -1,0 +1,72 @@
+= The journal
+:icons: font
+:toc:
+
+Narrative documentation with screenshots, written in AsciiDoc and rendered to a
+single HTML file and a PDF.
+
+== Why this is separate from `docs/`
+
+`docs/` is *reference*: what I need to know, written to be revised from, in
+Markdown so it reads well on GitHub and in an editor.
+
+`journal/` is *narrative*: what I did, in order, with evidence. It uses AsciiDoc
+for three things Markdown cannot do:
+
+`include::` with tags:: Quotes the real config files by tag, so a snippet in the
+journal can never drift from the file it describes. The tags live in the config
+as `# tag::name[]` / `# end::name[]` comments.
+
+Callouts:: Numbered annotations inside a code block, for explaining a query or a
+config line by line.
+
+One-command output:: A self-contained HTML file with images embedded, plus a
+PDF, from the same source.
+
+== Writing an entry
+
+One file per session or per incident, numbered in order:
+
+....
+journal/entries/003-promql-drills.adoc
+journal/images/003/whatever.png
+....
+
+Then add one `include::` line to `index.adoc`. Every entry starts with:
+
+[source,asciidoc]
+----
+ifndef::imagesdir[:imagesdir: ../images]
+
+= Title in the past tense, saying what happened
+:date: 2026-09-03
+----
+
+The `ifndef` line lets the entry render correctly both on its own and when
+included from `index.adoc`.
+
+== Screenshots
+
+* Windows: kbd:[Win+Shift+S], then save into `journal/images/<entry number>/`.
+* *Crop before saving.* A cropped 200 KB PNG of the thing you are talking about
+  beats a 2 MB full-desktop shot nobody can read. Screenshots are the one way
+  this repository could get fat.
+* Always give the image a title and alt text, both of which appear in the PDF:
++
+[source,asciidoc]
+----
+.Every target UP except blackbox-icmp
+image::002/prometheus-targets.png[Prometheus targets page,800]
+----
+
+== Rendering
+
+Asciidoctor runs in a container, so there is no Ruby to install on Windows:
+
+[source,powershell]
+----
+.\journal\render.ps1
+----
+
+Output lands in `build/`, which is git-ignored. The HTML embeds its images, so
+the single file can be sent to anyone.

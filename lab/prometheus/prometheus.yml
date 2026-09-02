@@ -1,6 +1,7 @@
 # PCA lab — Prometheus server configuration.
 # Every block here maps to something in docs/02-prometheus-fundamentals.md.
 
+# tag::global[]
 global:
   scrape_interval:     15s   # default is 1m — 15s makes the lab feel responsive
   scrape_timeout:      10s   # default 10s; must be <= scrape_interval
@@ -8,6 +9,7 @@ global:
   external_labels:           # attached to data leaving this server
     cluster: pca-lab         # (federation, remote_write, and alerts)
     replica: a
+# end::global[]
 
 rule_files:
   - /etc/prometheus/rules/*.rules.yml
@@ -63,6 +65,7 @@ scrape_configs:
     static_configs:
       - targets: ["pushgateway:9091"]
 
+# tag::blackbox[]
   # ── Blackbox: Prometheus scrapes the EXPORTER, passing the real target ────
   #    as a URL parameter. Memorise this relabel dance — it is exam material.
   - job_name: "blackbox-http"
@@ -81,6 +84,7 @@ scrape_configs:
         target_label: instance            # keep the real URL as the instance label
       - target_label: __address__
         replacement: blackbox:9115        # …but actually scrape the exporter
+# end::blackbox[]
 
   # ── Same exporter, different module ───────────────────────────────────────
   - job_name: "blackbox-icmp"

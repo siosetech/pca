@@ -1,0 +1,121 @@
+ifndef::imagesdir[:imagesdir: ../images]
+
+= Every port refused, every container healthy
+:date: 2026-09-02
+
+_2026-09-02_
+
+== The symptom
+
+The whole stack came up clean. Podman Desktop showed eight containers `RUNNING`.
+And every single port refused the connection from the browser: 9090, 3000, 8000,
+all of them.
+
+// .Eight containers running, and Chrome refusing anyway
+// image::002/containers-running.png[Podman Desktop, all containers green,800]
+// image::002/connection-refused.png[Chrome showing ERR_CONNECTION_REFUSED,800]
+
+`ERR_CONNECTION_REFUSED` rather than a timeout is the useful detail: something
+answered with a TCP reset, which means nothing was listening. The packets never
+got near Prometheus.
+
+== Splitting the problem
+
+Rather than guessing, three commands, each one cutting the problem in half.
+
+.1. Were the ports actually published?
+[source,powershell]
+----
+podman ps --format "{{.Names}} -> {{.Ports}}"
+----
+
+....
+pca-prometheus -> 0.0.0.0:9090->9090/tcp
+pca-grafana    -> 0.0.0.0:3000->3000/tcp
+....
+
+Yes. So compose did its job.
+
+.2. Was Windows listening?
+[source,powershell]
+----
+netstat -ano | findstr ":9090 "
+----
+
+Nothing. <1>
+
+<1> Keep the trailing space inside the quotes. Searching for `3000` also matches
+`30000`, and IntelliJ listens there, which briefly made it look like something
+was up when nothing was.
+
+.3. Was it alive inside the Podman machine?
+[source,powershell]
+----
+podman machine ssh "curl -s -o /dev/null -w '%{http_code}\n' http://localhost:9090/-/healthy"
+----
+
+....
+200
+....
+
+Healthy inside, invisible outside. That pins the fault to exactly one hop: the
+Podman machine to Windows.
+
+== The cause
+
+The machine was *rootful*.
+
+WSL2 publishes a container's port to Windows by watching the distro for
+**listening sockets** and mirroring them onto Windows `localhost`. It can only
+mirror something it can see.
+
+Rootful podman:: publishes with kernel DNAT rules. Packets are rewritten in the
+firewall layer and no process ever opens a socket. WSL looked in, saw no
+listener, and mirrored nothing. Inside the machine everything worked, because
+DNAT applies there.
+
+Rootless podman:: cannot touch iptables, so it starts a helper process,
+`rootlessport`, that genuinely binds `0.0.0.0:9090` and proxies into the
+container. WSL sees a real socket and mirrors it.
+
+IMPORTANT: The less privileged mode works *because* it cannot use the privileged
+shortcut. Being unable to write iptables rules forced podman into a mechanism
+WSL can observe.
+
+== The fix
+
+[source,powershell]
+----
+podman compose -f lab\compose.yaml down
+podman machine stop
+podman machine set --rootful=false
+podman machine start
+podman compose -f lab\compose.yaml up -d
+----
+
+Rootless keeps its own image and volume storage, so everything re-pulled once.
+
+.Proof, the same command that returned nothing before
+[source,powershell]
+----
+podman machine ssh "ss -tlnp | grep -E ':(9090|3000|8000)'"
+----
+
+....
+LISTEN 0 4096 0.0.0.0:9090 users:(("rootlessport",pid=3436,fd=12))
+LISTEN 0 4096 0.0.0.0:3000 users:(("rootlessport",pid=3584,fd=12))
+LISTEN 0 4096 0.0.0.0:8000 users:(("rootlessport",pid=3555,fd=12))
+....
+
+// .Grafana on localhost:3000 at last
+// image::002/grafana-up.png[Grafana home page,800]
+
+NOTE: The reference version of this, as a lookup table rather than a story, is
+in `lab/README.md`. This entry keeps the reasoning; that one keeps the fix.
+
+== What this was worth
+
+Nothing here is on the PCA syllabus. But the distinction I spent the evening
+inside, *the service is running* versus *the service is reachable*, is exactly
+what `up` measures and exactly why a failed scrape is a signal in its own right.
+Domain 1, learned the expensive way.

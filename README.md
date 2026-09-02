@@ -16,6 +16,7 @@ pca/
 ├── docs/        # study notes, one file per exam domain
 ├── lab/         # the runnable Prometheus stack (Podman)
 ├── drills/      # PromQL exercises, flashcards, the exam simulator
+├── journal/     # lab journal: what I did, with screenshots (AsciiDoc)
 ├── progress/    # 3-week plan + daily log
 └── .github/     # CI: promtool/amtool validate every config on push
 ```
@@ -29,6 +30,7 @@ pca/
 | `drills/promql/` | Exercise sets — question, my answer, the reference answer, why |
 | `drills/flashcards.md` | Q/A pairs for spaced repetition |
 | `drills/mock-exams/simulator/` | Interactive timed mock exam — open `index.html` in a browser |
+| `journal/` | Narrative write-ups with screenshots, rendered to HTML/PDF. See [`journal/README.adoc`](journal/README.adoc) |
 | `progress/plan-3-weeks.md` | Day-by-day plan, weighted by exam domains |
 | `progress/log.md` | What I actually did each day |
 

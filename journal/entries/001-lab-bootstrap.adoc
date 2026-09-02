@@ -1,0 +1,69 @@
+ifndef::imagesdir[:imagesdir: ../images]
+
+= Bringing the lab up
+:date: 2026-09-02
+
+_2026-09-02_
+
+== What I built
+
+A single-node Prometheus stack under Podman, chosen so that every exam domain
+has something running behind it rather than only a paragraph in my notes.
+
+[cols="1,1,3"]
+|===
+| Service | Port | Exam domain it serves
+
+| prometheus     | 9090 | Fundamentals, PromQL
+| alertmanager   | 9093 | Alerting: routing, grouping, inhibition, silences
+| grafana        | 3000 | Dashboarding
+| node-exporter  | 9100 | The USE method, `node_cpu_seconds_total`
+| blackbox       | 9115 | Black-box probing and the `__param_target` relabel dance
+| pushgateway    | 9091 | Batch-job metrics and their caveats
+| sample-app     | 8000 | One of each metric type: counter, gauge, histogram, summary
+| loadgen        | -    | Traffic, so the counters and histograms hold real data
+|===
+
+== The scrape config, quoted from the real file
+
+This block is pulled straight out of `lab/prometheus/prometheus.yml` by line
+range. If I edit the config, this page changes with it, so the journal can never
+quietly go stale.
+
+.The global block, as it actually stands
+[source,yaml]
+----
+include::../../lab/prometheus/prometheus.yml[tag=global]
+----
+
+The one that took me longest to internalise is the blackbox job, because
+Prometheus scrapes the *exporter* and passes the real target as a URL parameter:
+
+.`lab/prometheus/prometheus.yml`, the blackbox relabel chain
+[source,yaml]
+----
+include::../../lab/prometheus/prometheus.yml[tag=blackbox]
+----
+
+TIP: Read the three `relabel_configs` steps in order. The target becomes the
+query parameter, the parameter is preserved as the `instance` label, and only
+then is `__address__` overwritten with the exporter's address. Reversing the
+last two loses the real target's identity.
+
+== Screenshots
+
+// Drop the file into journal/images/001/ and uncomment.
+// .All eight containers running under Podman
+// image::001/podman-containers.png[Podman Desktop showing the pca-lab compose group,800]
+
+// .Every target UP except blackbox-icmp, which is expected
+// image::001/prometheus-targets.png[Prometheus targets page,800]
+
+== What I got wrong
+
+* Assumed `blackbox-icmp` was broken. It is not: rootless containers cannot send
+  ICMP, so `probe_success == 0` there is correct behaviour. I left it in as a
+  permanently failing target to alert against.
+* Expected the provisioned Grafana dashboard on the home page. "Recent
+  dashboards" stays empty until you open one. It lives under
+  menu:Dashboards[PCA Lab].
