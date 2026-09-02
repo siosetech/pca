@@ -1,0 +1,7 @@
+# file_sd target list. Prometheus re-reads this on change — no reload needed.
+# Add a target here and watch it appear on http://localhost:9090/targets
+- targets:
+    - "node-exporter:9100"
+  labels:
+    env: lab
+    role: host

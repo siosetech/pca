@@ -1,0 +1,21 @@
+# Lab runtime state — never commit
+lab/data/
+lab/**/data/
+*.db
+*.wal
+
+# Grafana
+lab/grafana/grafana.db
+
+# Local scratch
+scratch/
+*.local.md
+.env
+
+# Editors / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini

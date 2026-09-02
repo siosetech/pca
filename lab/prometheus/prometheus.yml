@@ -1,0 +1,98 @@
+# PCA lab — Prometheus server configuration.
+# Every block here maps to something in docs/02-prometheus-fundamentals.md.
+
+global:
+  scrape_interval:     15s   # default is 1m — 15s makes the lab feel responsive
+  scrape_timeout:      10s   # default 10s; must be <= scrape_interval
+  evaluation_interval: 15s   # how often rules are evaluated; default 1m
+  external_labels:           # attached to data leaving this server
+    cluster: pca-lab         # (federation, remote_write, and alerts)
+    replica: a
+
+rule_files:
+  - /etc/prometheus/rules/*.rules.yml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ["alertmanager:9093"]
+
+scrape_configs:
+
+  # ── Prometheus scraping itself ────────────────────────────────────────────
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+        labels:
+          env: lab
+
+  # ── Static target list ────────────────────────────────────────────────────
+  - job_name: "sample-app"
+    scrape_interval: 5s              # overrides the global setting
+    static_configs:
+      - targets: ["sample-app:8000"]
+        labels:
+          env: lab
+          team: platform
+
+  # ── file_sd: edit targets/*.yml and Prometheus picks it up with no reload ─
+  - job_name: "node"
+    file_sd_configs:
+      - files:
+          - /etc/prometheus/targets/*.yml
+        refresh_interval: 30s
+    relabel_configs:
+      # Turn "node-exporter:9100" into a friendlier `instance` label.
+      - source_labels: [__address__]
+        regex: "([^:]+):.*"
+        target_label: instance
+        replacement: "$1"
+    metric_relabel_configs:
+      # Cardinality control: drop the per-CPU-per-mode series we never look at.
+      # This runs AFTER the scrape — contrast with relabel_configs above.
+      - source_labels: [__name__, mode]
+        regex: "node_cpu_seconds_total;(iowait|irq|softirq|steal|guest.*)"
+        action: drop
+
+  - job_name: "alertmanager"
+    static_configs:
+      - targets: ["alertmanager:9093"]
+
+  - job_name: "pushgateway"
+    honor_labels: true               # keep the job/instance labels the pusher set
+    static_configs:
+      - targets: ["pushgateway:9091"]
+
+  # ── Blackbox: Prometheus scrapes the EXPORTER, passing the real target ────
+  #    as a URL parameter. Memorise this relabel dance — it is exam material.
+  - job_name: "blackbox-http"
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - http://sample-app:8000/metrics
+          - http://prometheus:9090/-/healthy
+          - https://prometheus.io
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target      # ?target=<the real URL>
+      - source_labels: [__param_target]
+        target_label: instance            # keep the real URL as the instance label
+      - target_label: __address__
+        replacement: blackbox:9115        # …but actually scrape the exporter
+
+  # ── Same exporter, different module ───────────────────────────────────────
+  - job_name: "blackbox-icmp"
+    metrics_path: /probe
+    params:
+      module: [icmp]
+    static_configs:
+      - targets: ["1.1.1.1", "8.8.8.8"]
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox:9115

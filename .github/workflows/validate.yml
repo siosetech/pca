@@ -1,0 +1,55 @@
+# Validate every config in the lab on each push.
+# The point is not CI theatre: `promtool check` catches the exact class of
+# mistake the exam asks about, so a red build is a study prompt.
+
+name: validate
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prometheus — check config
+        run: |
+          docker run --rm --entrypoint promtool \
+            -v "${{ github.workspace }}/lab/prometheus:/etc/prometheus:ro" \
+            prom/prometheus:latest \
+            check config /etc/prometheus/prometheus.yml
+
+      - name: Prometheus — check rules
+        run: |
+          docker run --rm --entrypoint promtool \
+            -v "${{ github.workspace }}/lab/prometheus/rules:/rules:ro" \
+            prom/prometheus:latest \
+            check rules /rules/recording.rules.yml /rules/alerts.rules.yml
+
+      - name: Alertmanager — check config
+        run: |
+          docker run --rm --entrypoint amtool \
+            -v "${{ github.workspace }}/lab/alertmanager:/etc/alertmanager:ro" \
+            prom/alertmanager:latest \
+            check-config /etc/alertmanager/alertmanager.yml
+
+      - name: Blackbox — parse config
+        run: python3 -c "import yaml,sys; yaml.safe_load(open('lab/blackbox/blackbox.yml')); print('blackbox.yml ok')"
+
+      - name: Grafana dashboards — valid JSON
+        run: |
+          for f in lab/grafana/dashboards/*.json; do
+            python3 -c "import json,sys; json.load(open('$f')); print('$f ok')"
+          done
+
+      - name: Sample app — syntax check
+        run: python3 -m py_compile lab/apps/sample-app/app.py
+
+      - name: Remaining TODOs in the notes
+        run: |
+          echo "Open TODOs (informational, does not fail the build):"
+          grep -rn "TODO" docs/ progress/ || echo "  none — notes are complete"
