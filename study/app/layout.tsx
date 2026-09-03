@@ -16,13 +16,13 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "PCA Lab — Prometheus Certified Associate",
   description:
-    "Linux Foundation PCA çalışma ortamı: Podman lab, müfredat, PromQL ve pratik sınav.",
+    "Linux Foundation PCA study environment: Podman lab, curriculum, PromQL, and practice exam.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
-      lang="tr"
+      lang="en"
       className={`dark ${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">

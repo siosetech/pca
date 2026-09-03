@@ -13,9 +13,9 @@ import { findings, hardwareNotes } from "@/lib/data/findings";
 import { labServices } from "@/lib/data/services";
 
 const severityLabel = {
-  keep: "Korunacak",
-  fix: "Bu lab’de düzeltildi",
-  next: "Sonra",
+  keep: "Keep",
+  fix: "Fixed in this lab",
+  next: "Next",
 } as const;
 
 export default function HomePage() {
@@ -24,25 +24,25 @@ export default function HomePage() {
       <section className="space-y-4">
         <Badge variant="secondary">Linux Foundation · PCA</Badge>
         <h1 className="max-w-3xl text-3xl font-medium tracking-tight text-pretty sm:text-4xl">
-          Laptop’taki Podman stack’i PCA müfredatına oturuyor. Eksik olan şey
-          pin’li config, kurallar ve PromQL pratiğiydi.
+          The Podman stack on the laptop fits the PCA curriculum. What was
+          missing was pinned configs, rules, and PromQL practice.
         </h1>
         <p className="max-w-2xl text-muted-foreground leading-relaxed">
-          MSI i9 / 32 GB, rootful WSL Podman, 8 konteynerlik <code>pca-lab</code>{" "}
-          compose. Bu repo aynı servisleri sınav konularıyla eşler: recording /
-          alerting rules, Alertmanager grouping, blackbox relabel, Pushgateway,
-          histogram SLO kovaları ve 20 soruluk İngilizce deneme.
+          MSI i9 / 32 GB, rootful WSL Podman, 8-container <code>pca-lab</code>{" "}
+          compose. This repo maps these services to exam topics: recording /
+          alerting rules, Alertmanager grouping, blackbox relabeling, Pushgateway,
+          histogram SLO buckets, and a practice exam.
         </p>
         <div className="flex flex-wrap gap-2">
           <Button nativeButton={false} render={<Link href="/lab" />}>
-            Lab’i çalıştır
+            Run Lab
             <ArrowRight data-icon="inline-end" />
           </Button>
           <Button nativeButton={false} variant="outline" render={<Link href="/quiz" />}>
-            Deneme sınavı
+            Practice Exam
           </Button>
           <Button nativeButton={false} variant="ghost" render={<Link href="/promql" />}>
-            PromQL (%28)
+            PromQL (28%)
           </Button>
           <Button nativeButton={false} variant="ghost" render={<Link href="/extras" />}>
             Extras
@@ -62,7 +62,7 @@ export default function HomePage() {
         <Card size="sm">
           <CardHeader>
             <CardDescription className="flex items-center gap-1.5">
-              <MemoryStick className="size-3.5" /> Bellek
+              <MemoryStick className="size-3.5" /> Memory
             </CardDescription>
             <CardTitle>{hardwareNotes.memory}</CardTitle>
           </CardHeader>
@@ -78,7 +78,7 @@ export default function HomePage() {
         <Card size="sm">
           <CardHeader>
             <CardDescription className="flex items-center gap-1.5">
-              <Server className="size-3.5" /> Motor
+              <Server className="size-3.5" /> Engine
             </CardDescription>
             <CardTitle className="text-sm leading-snug">{hardwareNotes.engine}</CardTitle>
           </CardHeader>
@@ -86,7 +86,7 @@ export default function HomePage() {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-xl font-medium">Mevcut ortamın incelemesi</h2>
+        <h2 className="text-xl font-medium">Environment Review</h2>
         <div className="grid gap-3 md:grid-cols-2">
           {findings.map((f) => (
             <Card key={f.title}>
@@ -103,7 +103,7 @@ export default function HomePage() {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-xl font-medium">Sınav ağırlıkları</h2>
+        <h2 className="text-xl font-medium">Exam Weights</h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {domains.map((d) => (
             <Link key={d.slug} href={`/domains/${d.slug}`}>
@@ -119,15 +119,15 @@ export default function HomePage() {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-xl font-medium">Compose servisleri</h2>
+        <h2 className="text-xl font-medium">Compose Services</h2>
         <div className="overflow-x-auto rounded-xl ring-1 ring-foreground/10">
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-left text-muted-foreground">
               <tr>
-                <th className="px-3 py-2 font-medium">Servis</th>
+                <th className="px-3 py-2 font-medium">Service</th>
                 <th className="px-3 py-2 font-medium">Port</th>
-                <th className="px-3 py-2 font-medium">PCA alanı</th>
-                <th className="hidden px-3 py-2 font-medium md:table-cell">Rol</th>
+                <th className="px-3 py-2 font-medium">PCA Domain</th>
+                <th className="hidden px-3 py-2 font-medium md:table-cell">Role</th>
               </tr>
             </thead>
             <tbody>

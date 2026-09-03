@@ -15,16 +15,16 @@ export default function LabPage() {
       <div className="space-y-2">
         <h1 className="text-3xl font-medium">Lab — Podman Compose</h1>
         <p className="max-w-2xl text-muted-foreground leading-relaxed">
-          Windows + Podman Desktop. Compose <code>lab\compose.yaml</code>{" "}
-          içinde. Grafana 3000, Prometheus 9090 — mevcut portlarınla aynı.
+          Windows + Podman Desktop. Compose file is in <code>lab\compose.yaml</code>.
+          Grafana on 3000, Prometheus on 9090 — matching your local ports.
         </p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Başlat</CardTitle>
+          <CardTitle>Start Lab</CardTitle>
           <CardDescription>
-            Rootful Podman machine RUNNING olmalı (Settings → Resources).
+            Rootful Podman machine must be RUNNING (Settings → Resources).
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -33,9 +33,9 @@ export default function LabPage() {
 podman compose up -d --build`}
           />
           <p className="text-sm text-muted-foreground">
-            İlk açılışta imaj çekimi ve sample-app build birkaç dakika sürebilir.
-            Eski stack’i durdur:{" "}
-            <code>podman compose down</code> (lab dizininden) — port çakışmasın.
+            Initial image pull and sample-app build may take a few minutes.
+            Stop previous stack if running:{" "}
+            <code>podman compose down</code> (from the lab directory) to avoid port collisions.
           </p>
         </CardContent>
       </Card>
@@ -76,38 +76,38 @@ podman compose up -d --build`}
 
       <Card>
         <CardHeader>
-          <CardTitle>Sınav turu (30 dk)</CardTitle>
+          <CardTitle>Exam Walkthrough (30 min)</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-sm leading-relaxed">
           <ol className="list-decimal space-y-2 pl-5">
             <li>
-              Prometheus → Status → Targets: hepsi UP. file-sd ve blackbox-http
-              job’larını aç, relabel sonucunu gör.
+              Prometheus → Status → Targets: All UP. Expand file-sd and blackbox-http
+              jobs to verify relabeling results.
             </li>
             <li>
-              Graph’ta <code>rate(http_requests_total[5m])</code> ve{" "}
-              <code>job:http_request_error_ratio:rate5m</code> (recording).
+              In Graph: query <code>rate(http_requests_total[5m])</code> and{" "}
+              <code>job:http_request_error_ratio:rate5m</code> (recording rule).
             </li>
             <li>
-              Alerts: HighErrorRate pending/firing — /api/unstable kasıtlı %28
-              500.
+              Alerts: HighErrorRate pending/firing — /api/unstable intentionally generates
+              ~28% 500 responses.
             </li>
             <li>
-              Alertmanager: group_by, inhibit. sample-app{" "}
-              <code>alertmanager_webhooks_total</code> artmalı.
+              Alertmanager: Inspect group_by and inhibit rules. Verify that sample-app{" "}
+              <code>alertmanager_webhooks_total</code> increments.
             </li>
             <li>
-              Grafana <code>admin / pca</code> — PCA Lab Overview. Heatmap değil
-              timeseries; p99 histogram_quantile.
+              Grafana <code>admin / pca</code> — PCA Lab Overview. Compare time series
+              graphs with p99 histogram_quantile.
             </li>
             <li>
-              Pushgateway UI ve{" "}
+              Pushgateway UI and{" "}
               <code>time() - timestamp(batch_job_last_success_timestamp_seconds)</code>.
             </li>
             <li>
               Config reload:{" "}
               <code>curl -X POST http://localhost:9090/-/reload</code>{" "}
-              (--web.enable-lifecycle).
+              (--web.enable-lifecycle enabled).
             </li>
           </ol>
         </CardContent>
@@ -115,9 +115,9 @@ podman compose up -d --build`}
 
       <Card>
         <CardHeader>
-          <CardTitle>Kind (opsiyonel)</CardTitle>
+          <CardTitle>Kind (Optional)</CardTitle>
           <CardDescription>
-            kubernetes_sd_configs pratikleri. Compose yeter; Kind ikinci adım.
+            kubernetes_sd_configs hands-on practice. Compose is sufficient; Kind is an optional next step.
           </CardDescription>
         </CardHeader>
         <CardContent>

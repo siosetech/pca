@@ -15,9 +15,10 @@ export default function ExtrasPage() {
       <div className="space-y-2">
         <h1 className="text-3xl font-medium">Extras</h1>
         <p className="max-w-2xl text-muted-foreground leading-relaxed">
-          Pearson PCA videosunun lab’de ince kalan yerleri: Linux (L11),
-          Kubernetes SD (L12), sınav tuzakları (L13), PromQL operatörleri,
-          heatmap, metric_relabel. Thanos/HA yok — associate sınavının dışında.
+          Key topics complementing the Pearson PCA course: Linux (L11),
+          Kubernetes SD (L12), exam traps (L13), PromQL operators, heatmaps,
+          and metric_relabel. Thanos/HA is omitted as it is outside the Associate
+          exam scope.
         </p>
       </div>
       <div className="space-y-3">

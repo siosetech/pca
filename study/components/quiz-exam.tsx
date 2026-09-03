@@ -49,7 +49,7 @@ export function QuizExam() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Sonuç</CardTitle>
+          <CardTitle>Results</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-3xl font-medium tabular-nums">
@@ -57,12 +57,12 @@ export function QuizExam() {
           </p>
           <p className="text-muted-foreground">
             {ratio >= 0.8
-              ? "Güçlü. PromQL ve Alertmanager nüanslarını bir tur daha sıkılaştır."
+              ? "Strong performance! Review PromQL and Alertmanager nuances for a final polish."
               : ratio >= 0.66
-                ? "PCA geçme eşiği civarı (resmi bar açıklanmıyor, ~%66 spekülasyonu). Zayıf alanları müfredattan aç."
-                : "Önce PromQL alıştırmaları ve domain notları, sonra tekrar dene."}
+                ? "Around the PCA passing threshold (official threshold is not published, ~66% passing score estimated). Review weak domains in the curriculum."
+                : "Review the PromQL exercises and domain notes first, then try again."}
           </p>
-          <Button onClick={restart}>Yeniden başlat</Button>
+          <Button onClick={restart}>Restart Quiz</Button>
         </CardContent>
       </Card>
     );
@@ -73,10 +73,10 @@ export function QuizExam() {
       <div className="space-y-2">
         <div className="flex justify-between text-xs text-muted-foreground">
           <span>
-            Soru {index + 1} / {quizQuestions.length} · {q.domain}
+            Question {index + 1} of {quizQuestions.length} · {q.domain}
           </span>
           <span>
-            Skor {score} · İngilizce (sınav dili)
+            Score: {score} · Exam language (English)
           </span>
         </div>
         <Progress value={pct} />
@@ -120,12 +120,12 @@ export function QuizExam() {
             {q.why}
           </p>
           <Button onClick={next}>
-            {index + 1 >= quizQuestions.length ? "Sonucu gör" : "Sonraki"}
+            {index + 1 >= quizQuestions.length ? "View Results" : "Next Question"}
           </Button>
         </div>
       ) : (
         <Button disabled={picked === null} onClick={lock}>
-          Kilitle
+          Submit Answer
         </Button>
       )}
     </div>

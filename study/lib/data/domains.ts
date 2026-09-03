@@ -23,22 +23,22 @@ export const domains: Domain[] = [
     ],
     sections: [
       {
-        heading: "Üç sütun",
-        body: "Metrics: aggregatable numbers over time (Prometheus). Logs/events: discrete records, high cardinality, not Prometheus’s job (Loki, ELK). Traces: a request’s path as spans with a trace ID (Jaeger, Tempo, OTel). PCA ‘hangi araç hangi sinyal’ diye sorar — Prometheus metrik içindir.",
+        heading: "Three Pillars",
+        body: "Metrics: aggregatable numeric time series (Prometheus). Logs/events: discrete textual records with high cardinality, not Prometheus’s job (Loki, ELK). Traces: request lifecycles as spans with a trace ID (Jaeger, Tempo, OTel). PCA tests 'which tool for which signal' — Prometheus is built for metrics.",
       },
       {
         heading: "Push vs Pull",
-        body: "Prometheus varsayılanı pull’dur: scrape_interval’da HTTP GET /metrics. Avantaj: hedef ayaktaysa sen kontrol edersin, up metriği bedava gelir, stalled client yoktur. Pushgateway kısa ömürlü batch job’lar içindir (cron bitmeden scrape kaçmasın). Asıl uygulama metriklerini Pushgateway’e basmak anti-pattern’dir — stale metrik ve instance label kaybı.",
-        exam: "Short-lived jobs → Pushgateway. Long-running services → scrape. honor_labels: true Pushgateway job’unda job/instance ezilmesin diye.",
+        body: "Prometheus defaults to pull: HTTP GET /metrics at scrape_interval. Advantages: you control scrape timing, the 'up' metric is generated automatically, and there are no stalled clients. Pushgateway is designed for short-lived batch jobs (so a cron job is not missed before a scrape). Pushing long-running application metrics to Pushgateway is an anti-pattern — leading to stale metrics and losing the instance label.",
+        exam: "Short-lived jobs → Pushgateway. Long-running services → scrape. honor_labels: true on Pushgateway jobs to avoid overwriting job/instance labels.",
       },
       {
-        heading: "Service discovery",
-        body: "Hedef listesini elle yazmak yerine file_sd, dns_sd, kubernetes_sd, consul_sd, ec2_sd. Lab’de file_sd 30 saniyede yeniden okunur. Kubernetes’te role: pod/service/endpoints/node/ingress ve __meta_kubernetes_* relabel alanları.",
+        heading: "Service Discovery",
+        body: "Instead of hardcoding targets manually, use file_sd, dns_sd, kubernetes_sd, consul_sd, ec2_sd. In this lab, file_sd is refreshed every 30 seconds. In Kubernetes: role: pod/service/endpoints/node/ingress and __meta_kubernetes_* relabeling fields.",
       },
       {
         heading: "SLI, SLO, SLA",
-        body: "SLI: ölçülen gösterge (ör. isteklerin 30 sn altında bitme oranı). SLO: hedef (97%). SLA: müşteri sözleşmesi, genelde SLO’dan gevşek, ihlalde cezası var. Histogram kovası SLO eşiğinde (30s) tanımlanmalı; yoksa quantile tahmini o noktada kördür.",
-        exam: "Bucket listesinde SLO değeri yoksa histogram_quantile o SLI’yı güvenilir ölçmez.",
+        body: "SLI: measured indicator (e.g. ratio of requests completed under 30s). SLO: target objective (97%). SLA: customer agreement, typically looser than SLO, with penalties if violated. A histogram bucket boundary must be defined exactly at the SLO threshold (30s); otherwise quantile estimation is blind at that point.",
+        exam: "If the SLO threshold is not in the bucket list, histogram_quantile cannot reliably evaluate that SLI.",
       },
     ],
   },
@@ -56,25 +56,25 @@ export const domains: Domain[] = [
     ],
     sections: [
       {
-        heading: "Mimari",
-        body: "Retrieval scrape eder, TSDB yerelde zaman serisi tutar, PromQL engine sorgular, HTTP UI/API sunar. Rule evaluator recording ve alerting kurallarını evaluation_interval’da çalıştırır. Alertmanager ayrı süreçtir; Prometheus alert gönderir, bildirim Alertmanager işidir. Grafana Prometheus’a sorgu atar, tersi değil.",
+        heading: "Architecture",
+        body: "The retrieval component scrapes targets, TSDB stores time series locally, PromQL engine executes queries, and HTTP UI/API serves them. The rule evaluator runs recording and alerting rules at evaluation_interval. Alertmanager is a separate process; Prometheus sends alerts, and notifications are Alertmanager's job. Grafana queries Prometheus, never the reverse.",
       },
       {
-        heading: "Scrape ayarı",
-        body: "global.scrape_interval varsayılan 1m; lab 15s. scrape_timeout < scrape_interval olmalı. Job her zaman job ve instance etiketini ekler (instance = host:port). metric_relabel_configs scrape’ten SONRA seriyi düşürür/yeniden adlandırır; relabel_configs hedef seçimi içindir (scrape etmeden drop).",
-        exam: "team: frontend hedeflerini scrape etme → relabel_configs action: drop. Metrik adını değiştir → metric_relabel_configs.",
+        heading: "Scrape Configuration",
+        body: "global.scrape_interval defaults to 1m; in this lab 15s. scrape_timeout must be < scrape_interval. A scrape job always attaches job and instance labels (instance = host:port). metric_relabel_configs drops/renames series AFTER scraping; relabel_configs is for target selection (e.g., dropping before scraping).",
+        exam: "Do not scrape targets with team: frontend → relabel_configs action: drop. Rename a metric name → metric_relabel_configs.",
       },
       {
-        heading: "Limitasyonlar",
-        body: "Prometheus HA için tek kutu tasarlanmıştır (clustering yok; iki replica + external_labels). Uzun vadeli depolama için remote_write (Thanos, Mimir, Cortex). Yüksek kardinalite (user_id, email, uuid label) TSDB’yi öldürür. Network device’lar SNMP exporter ile izlenir; Prometheus router’a gitmez. Desteklenen yerel FS: ext4/XFS; NFS önerilmez.",
+        heading: "Limitations",
+        body: "Prometheus is designed as a standalone single node (no clustering; HA uses two replicas + external_labels). For long-term storage, use remote_write (Thanos, Mimir, Cortex). High cardinality (user_id, email, uuid in labels) exhausts TSDB resources. Network devices are monitored via SNMP exporter; Prometheus does not scrape routers directly. Supported local filesystems: ext4/XFS; NFS is not recommended.",
       },
       {
-        heading: "Veri modeli",
-        body: "Bir zaman serisi = metric name + label set. Örnek: http_requests_total{method=\"GET\",code=\"200\"} 12. Counter sadece artar (restart’ta 0’a düşebilir — rate() bunu handle eder). Gauge inip çıkar. Histogram _bucket/_sum/_count. Summary client-side quantile + _sum/_count.",
+        heading: "Data Model",
+        body: "A time series = metric name + label set. Example: http_requests_total{method=\"GET\",code=\"200\"} 12. Counter only increases (can reset to 0 on restart — rate() handles this). Gauge goes up and down. Histogram produces _bucket, _sum, _count. Summary produces client-side quantiles, _sum, _count.",
       },
       {
-        heading: "Exposition format",
-        body: "text/plain; version=0.0.4 OpenMetrics/Prometheus text. HELP ve TYPE satırları, sonra name{labels} value timestamp(opsiyonel). Histogram: le etiketi + +Inf kovası zorunlu. /metrics 200 dönmeli.",
+        heading: "Exposition Format",
+        body: "text/plain; version=0.0.4 OpenMetrics/Prometheus text format. HELP and TYPE lines, followed by name{labels} value timestamp(optional). Histogram: 'le' label and '+Inf' bucket are required. /metrics must return HTTP 200.",
       },
     ],
   },
@@ -82,7 +82,7 @@ export const domains: Domain[] = [
     slug: "promql",
     weight: 28,
     title: "PromQL",
-    subtitle: "En ağır alan — rate, aggregation, binary ops, histograms",
+    subtitle: "Heaviest exam domain (28%) — rate, aggregation, binary operators, histograms",
     topics: [
       "Selecting data",
       "Rates and derivatives",
@@ -94,29 +94,29 @@ export const domains: Domain[] = [
     ],
     sections: [
       {
-        heading: "Seçiciler",
-        body: "{job=\"node\"} eşitlik, {job!=\"node\"} değil, {job=~\"web|node\"} regex, {job!~\"dev.*\"} negatif regex. Instant vector vs range vector: metric[5m] range’dir ve tek başına grafiklenmez; üzerine rate/increase/avg_over_time gerekir.",
-        exam: "job=web veya job=node → {job=~\"web|node\"}",
+        heading: "Selectors",
+        body: "{job=\"node\"} equality, {job!=\"node\"} inequality, {job=~\"web|node\"} regex match, {job!~\"dev.*\"} negative regex. Instant vector vs range vector: metric[5m] is a range vector and cannot be graphed directly; it requires rate/increase/avg_over_time.",
+        exam: "job=web or job=node → {job=~\"web|node\"}",
       },
       {
         heading: "rate, irate, increase",
-        body: "rate(): range içinde per-second ortalama, counter reset’lerini düzeltir, grafikler için varsayılan. irate(): son iki örnek, ‘anlık’ sıçrama; alerting’de gürültülü. increase(): aynı pencerede toplam artış ≈ rate()*window_seconds. deriv() gauge’lar içindir, counter için değil.",
+        body: "rate(): per-second average rate over the range window, handles counter resets, default for graphing. irate(): instant rate based on the last two data points, captures spikes; too volatile/noisy for alerting. increase(): total increase over the window ≈ rate() * window_seconds. deriv(): calculates derivative for gauges, never for counters.",
       },
       {
-        heading: "Zaman vs boyut",
-        body: "*_over_time (avg_over_time, max_over_time) range vector alır, zamanı sıkıştırır. sum/avg/max by (instance) instant vector alır, etiketleri sıkıştırır. ‘her node’da CPU’ların ortalaması’ → avg by (instance) (node_cpu_temp_celsius).",
+        heading: "Time vs Dimensions",
+        body: "*_over_time (avg_over_time, max_over_time) takes a range vector and aggregates over time. sum/avg/max by (instance) takes an instant vector and aggregates across dimensions/labels. 'Average CPU across each node' → avg by (instance) (node_cpu_temp_celsius).",
       },
       {
-        heading: "Binary operators ve eşleme",
-        body: "A / B varsayılanı one-to-one, tüm etiketler eşit olmalı. ignoring(code) o etiketi yok sayar. on(instance) sadece o etiketten eşler. group_left / group_right many-to-one. and / or / unless küme operatörleri. > bool karşılaştırma 0/1 üretir.",
+        heading: "Binary Operators and Matching",
+        body: "A / B defaults to one-to-one matching; all label sets must match exactly. ignoring(code) ignores specific labels. on(instance) matches strictly on specified labels. group_left / group_right performs many-to-one / one-to-many vector matching. and / or / unless are set operators. Comparisons with 'bool' (e.g. > bool) return 0 or 1.",
       },
       {
-        heading: "Histogram",
-        body: "histogram_quantile(0.99, sum by (le) (rate(http_request_duration_seconds_bucket[5m]))). le etiketini koru — by (le, ...) unutmak klasik hata. Histogram ≈ sunucu tarafı kova; Summary ≈ client quantile, aggregatable değil (farklı instance p99 toplanmaz).",
+        heading: "Histograms",
+        body: "histogram_quantile(0.99, sum by (le) (rate(http_request_duration_seconds_bucket[5m]))). Preserve the 'le' label — omitting 'le' in 'by (le, ...)' is a classic exam mistake. Histogram ≈ server-side buckets (aggregatable); Summary ≈ client-side quantiles, not aggregatable across instances (cannot average p99s).",
       },
       {
-        heading: "Timestamp fonksiyonları",
-        body: "time() unix now. timestamp(metric) serinin son örnek zamanı. time() - timestamp(batch_job_last_success_timestamp_seconds) ‘kaç saniyedir başarılı job gelmedi’. absent() seri yoksa 1 döner — up==0 ile karıştırma (up 0 da bir seridir).",
+        heading: "Timestamp Functions",
+        body: "time() returns current unix timestamp. timestamp(metric) returns the timestamp of the last sample in the series. time() - timestamp(batch_job_last_success_timestamp_seconds) calculates 'how many seconds since last successful job'. absent() returns 1 if the series does not exist — do not confuse with up==0 (where up has a value of 0, so the series exists).",
       },
     ],
   },
@@ -133,21 +133,21 @@ export const domains: Domain[] = [
     ],
     sections: [
       {
-        heading: "Client libraries",
-        body: "Resmi: Go, Java, Python, Ruby. Üçüncü parti: .NET, Node, Rust… Library üç iş yapar: metrik tut, /metrics expose et, kısa job’da Pushgateway’e push et. Lab sample-app Python prometheus_client kullanır.",
+        heading: "Client Libraries",
+        body: "Official: Go, Java, Python, Ruby. Third-party: .NET, Node, Rust, etc. The library does three things: maintains metrics, exposes /metrics, and pushes to Pushgateway for short-lived batch jobs. The lab's sample-app uses the Python prometheus_client library.",
       },
       {
-        heading: "Dört tip",
-        body: "Counter: http_requests_total — asla azalmaz. Gauge: temperature, queue depth, in-flight. Histogram: latency/size dağılımı, heatmap ve quantile. Summary: client quantile; heatmap için histogram kullanılır (sınav tuzağı). Uptime’ı Counter ile ölç (process_start_time_seconds gauge + time()).",
-        exam: "Heatmap → Histogram. ‘current temperature’ → Gauge. ‘requests since start’ → Counter.",
+        heading: "Four Metric Types",
+        body: "Counter: http_requests_total — monotonically increasing, never decreases. Gauge: temperature, queue depth, in-flight requests. Histogram: latency/size distributions, heatmaps, and quantiles. Summary: client-side quantiles; cannot be used for heatmaps (exam trap). Calculate uptime with process_start_time_seconds gauge + time().",
+        exam: "Heatmap → Histogram. 'current temperature' → Gauge. 'requests since start' → Counter.",
       },
       {
-        heading: "İsimlendirme",
-        body: "base_unit_suffix: http_request_duration_seconds, node_memory_MemAvailable_bytes. _total counter’larda. Uygulama adını metric name’e gömme, label kullan. Label’da user_id / email yasak (kardinalite). job ve instance’ı sen set etme; Prometheus ekler.",
+        heading: "Metric Naming & Conventions",
+        body: "Use base_unit_suffix: http_request_duration_seconds, node_memory_MemAvailable_bytes. Suffix counters with _total. Do not embed application names into metric names; use labels. Avoid user_id / email in labels (high cardinality risk). Do not set job and instance labels manually; Prometheus attaches them automatically.",
       },
       {
         heading: "Exporters",
-        body: "Node Exporter: *nix host. Windows Exporter. Blackbox: dışarıdan probe (HTTP/TCP/ICMP/DNS) — whitebox değil, blackbox. mysqld, redis, snmp, cadvisor. Kendi uygulamanı yazabiliyorsan exporter yerine client library.",
+        body: "Node Exporter: *nix host metrics. Windows Exporter. Blackbox: external probing (HTTP/TCP/ICMP/DNS) — blackbox, not whitebox instrumentation. mysqld, redis, snmp, cadvisor. If you control the application code, instrument directly with a client library instead of using an exporter.",
       },
     ],
   },
@@ -164,21 +164,21 @@ export const domains: Domain[] = [
     ],
     sections: [
       {
-        heading: "Ne zaman alert",
-        body: "Semptom (kullanıcı acı çekiyor: error ratio, latency, probe fail), neden değil (CPU 90%). Alert actionable olmalı. Recording rules dashboard ve kural için ön-aggregasyon. Alert rules ayrı YAML, rule_files ile yüklenir; scrape_configs içine yazılmaz.",
+        heading: "When to Alert",
+        body: "Alert on symptoms (user-facing impact: error ratio, latency, probe failure), not causes (e.g. CPU 90%). Alerts must be actionable. Recording rules precompute expensive queries for dashboards and rules. Alert rules are defined in separate YAML files loaded via rule_files; never placed inside scrape_configs.",
       },
       {
-        heading: "Alerting rule",
-        body: "alert: Name, expr:, for: (pending → firing), labels: (severity, team — routing için), annotations: (summary, description — $labels / $value). for: 1m scrape gürültüsünü keser. ALERTS ve ALERTS_FOR_STATE dahili serilerdir.",
+        heading: "Alerting Rules",
+        body: "alert: Name, expr:, for: (pending → firing transition duration), labels: (severity, team — used for routing), annotations: (summary, description — can interpolate $labels / $value). 'for: 1m' avoids alert noise from temporary spikes. ALERTS and ALERTS_FOR_STATE are built-in time series.",
       },
       {
         heading: "Alertmanager",
-        body: "group_by benzer alert’leri tek bildiride toplar. group_wait ilk bildirimi geciktirir (kardeşler gelsin). group_interval aynı gruba ek bildirimi. repeat_interval kimse ack etmezse tekrar (sınav: ‘ne kadar bekler?’ → repeat_interval). inhibit_rules: InstanceDown varken HighErrorRate susturulur. Silences UI veya API. Config reload: SIGHUP, /- /reload, süreç restart — ‘UI’da reload butonu’ yoktur.",
-        exam: "Routing tree ilk eşleşmede durur (continue: true değilse). matchers yeni sözdizimi; eski match: hâlâ görülebilir.",
+        body: "group_by aggregates similar alerts into a single notification. group_wait buffers the initial notification to batch sibling alerts. group_interval controls intervals before sending notifications about new alerts in the same group. repeat_interval resends alerts if they remain unacknowledged (exam: 'how long before resending?' → repeat_interval). inhibit_rules: mutes HighErrorRate when InstanceDown is already firing. Silences can be created via UI or API. Config reload: SIGHUP, /-/reload HTTP POST, or process restart — there is no 'reload button in the UI'.",
+        exam: "The routing tree stops at the first matching route (unless continue: true). 'matchers' is the modern syntax; legacy 'match:' syntax may still appear.",
       },
       {
         heading: "Dashboarding",
-        body: "Grafana sınavın ürünü değil ama ‘hangi sorgu heatmap/graph/stat’ sorulur. Rate’ler graph. anlık up → stat. Histogram heatmap. RED: Rate, Errors, Duration. USE: Utilization, Saturation, Errors. Lab Grafana’da PCA Lab Overview provisioned gelir.",
+        body: "Grafana is not a CNCF product on the exam, but questions ask 'which query for heatmap/graph/stat panel'. Rates belong in graphs. Instant 'up' in stat panels. Histograms in heatmaps. RED method: Rate, Errors, Duration. USE method: Utilization, Saturation, Errors. In the lab, Grafana comes provisioned with the 'PCA Lab Overview' dashboard.",
       },
     ],
   },

@@ -2,14 +2,14 @@ import { CopyBlock } from "@/components/copy-block";
 
 const blocks = [
   {
-    title: "Seçiciler",
+    title: "Selectors",
     code: `{job="node"}
 {job=~"web|node"}
 {code=~"5.."}
 {instance!="localhost:9090"}`,
   },
   {
-    title: "Rate ailesi",
+    title: "Rate Family",
     code: `rate(http_requests_total[5m])
 irate(http_requests_total[5m])
 increase(http_requests_total[1h])
@@ -87,8 +87,8 @@ export default function CheatsheetPage() {
       <div className="space-y-2">
         <h1 className="text-3xl font-medium">Cheatsheet</h1>
         <p className="max-w-2xl text-muted-foreground leading-relaxed">
-          Sınav açık defter değil. Bunu lab başında ezberle, sınavda ekrandan
-          çıkma.
+          The exam is closed-book. Memorize these key patterns during your lab
+          practice before taking the test.
         </p>
       </div>
       <div className="grid gap-4 md:grid-cols-2">

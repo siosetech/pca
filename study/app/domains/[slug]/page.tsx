@@ -27,7 +27,7 @@ export default async function DomainPage({
           <p className="leading-relaxed text-pretty">{s.body}</p>
           {s.exam ? (
             <p className="rounded-lg border border-primary/25 bg-primary/10 px-3 py-2 text-sm leading-relaxed">
-              Sınav: {s.exam}
+              Exam Tip: {s.exam}
             </p>
           ) : null}
         </section>

@@ -24,14 +24,14 @@ export function PromqlList() {
             </CardHeader>
             <CardContent className="space-y-3">
               <p className="text-sm text-muted-foreground">
-                İpucu: {ex.hint}
+                Hint: {ex.hint}
               </p>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => setOpen(isOpen ? null : ex.id)}
               >
-                {isOpen ? "Sorguyu gizle" : "Sorguyu göster"}
+                {isOpen ? "Hide query" : "Show query"}
               </Button>
               {isOpen ? (
                 <div className="space-y-2">

@@ -2,11 +2,11 @@ import Link from "next/link";
 import { Activity } from "lucide-react";
 
 const links = [
-  { href: "/", label: "Özet" },
+  { href: "/", label: "Overview" },
   { href: "/lab", label: "Lab" },
-  { href: "/domains", label: "Müfredat" },
+  { href: "/domains", label: "Curriculum" },
   { href: "/promql", label: "PromQL" },
-  { href: "/quiz", label: "Sınav" },
+  { href: "/quiz", label: "Quiz" },
   { href: "/cheatsheet", label: "Cheatsheet" },
   { href: "/extras", label: "Extras" },
 ];
@@ -41,8 +41,8 @@ export function SiteFooter() {
   return (
     <footer className="mt-auto border-t border-border/80">
       <div className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-6 text-xs text-muted-foreground sm:flex-row sm:justify-between">
-        <p>Linux Foundation PCA çalışma lab’i — resmi sınav materyali değildir.</p>
-        <p>Sınav İngilizce, 90 dakika, çoktan seçmeli.</p>
+        <p>Linux Foundation PCA study lab — not official exam material.</p>
+        <p>Exam is in English, 90 minutes, multiple choice.</p>
       </div>
     </footer>
   );

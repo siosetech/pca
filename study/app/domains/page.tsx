@@ -6,10 +6,10 @@ export default function DomainsPage() {
   return (
     <div className="space-y-8">
       <div className="space-y-2">
-        <h1 className="text-3xl font-medium">Müfredat</h1>
+        <h1 className="text-3xl font-medium">Curriculum</h1>
         <p className="max-w-2xl text-muted-foreground leading-relaxed">
-          Resmi beş domain. Notlar Türkçe; terimler ve deneme soruları İngilizce
-          çünkü sınav İngilizce. PromQL tek başına %28 — oraya en çok zaman ayır.
+          Official five domains. PromQL alone accounts for 28% of the exam —
+          allocate the most time there.
         </p>
       </div>
       <div className="grid gap-3 md:grid-cols-2">
