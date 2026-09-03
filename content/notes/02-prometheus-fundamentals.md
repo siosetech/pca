@@ -101,8 +101,10 @@ storage:           # tsdb / exemplars settings
 Defaults worth memorising: **`scrape_interval` 1m, `scrape_timeout` 10s,
 `evaluation_interval` 1m, `metrics_path` `/metrics`, `scheme` `http`.**
 
-Reload without restarting: `SIGHUP`, or `POST /-/reload`
-(needs `--web.enable-lifecycle`). Validate first: `promtool check config prometheus.yml`.
+Reload without restarting **Prometheus**: `SIGHUP`, or `POST /-/reload`
+(needs `--web.enable-lifecycle`). **Alertmanager** has no such flag —
+`POST /-/reload` or SIGHUP, and there is no Reload button in the UI.
+Validate first: `promtool check config prometheus.yml`.
 
 ### A scrape_config
 
@@ -263,7 +265,7 @@ exactly-once anything.
 7. What's in `external_labels`, and which three things consume it?
 8. Two Prometheus servers scrape the same targets for HA. Where does deduplication happen?
 9. What is the default staleness lookback, and why does it constrain my scrape interval?
-10. Name the five Kubernetes SD roles.
+10. Name the Kubernetes SD roles. (There is no `deployment` role.)
 11. Give three reasons Prometheus is the wrong tool for generating customer invoices.
 12. What scales Prometheus memory usage: the number of samples, or the number of active series?
 13. Prometheus has no built-in authentication. What are the two ways to put access control in front of it?

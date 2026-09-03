@@ -16,10 +16,26 @@
 > — these change and I should not trust a blog post for them.
 >
 > `> TODO` fill in after reading the handbook: questions = ___, pass mark = ___
+>
+> Until then the study app draws the pass line at **75%** (commonly reported).
+> Do not treat that as official.
 
 **This is a knowledge exam, not a hands-on one.** That changes how I study: the
 lab exists to build intuition and make facts stick, not to drill command speed.
 When I'm short on time, reading beats typing.
+
+## This repo's mocks
+
+[`../exam/questions.json`](../exam/questions.json) — 180 items, not official:
+
+| Set | Count | Weights (obs / fund / PromQL / instr / alert) | When |
+|---|---:|---|---|
+| Paper A | 60 | 11 / 12 / 17 / 9 / 11 | S11 mock |
+| Paper B | 60 | 11 / 12 / 17 / 9 / 11 | S12 mock |
+| Spare | 60 | practice pool | daily; leave A/B unused |
+
+Runner: http://localhost:43145/quiz. Flashcards (curriculum order, SM-2):
+`/flashcards`, sourced from [`../flashcards.md`](../flashcards.md).
 
 ## Domain weights
 

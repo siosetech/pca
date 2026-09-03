@@ -85,7 +85,7 @@ with nothing open.
 ## Week 3 — Instrumentation and alerting (Sep 17–23)
 
 **S7.** L10 Instrumenting Data.
-→ `content/notes/04`. Add a metric to `lab/apps/sample-app/app.py`, rebuild, query it.
+→ `content/notes/04`. Add a metric to `lab/sample-app/app.py`, rebuild, query it.
 
 **S8.** L8 Alerting and Rules.
 → `content/notes/05` §5.1–5.2. Write one recording rule and one alerting rule of your
@@ -102,11 +102,13 @@ explained out loud without notes.
 **S10.** L11 Monitoring Linux + L12 Monitoring Kubernetes, both at speed.
 Kubernetes matters here only as SD roles and kube-state-metrics vs cAdvisor.
 
-**S11.** **Mock #1**, full 90 minutes under exam conditions. Then review every
-wrong answer into `content/exam/`, and repair the weakest domain.
+**S11.** **Mock #1 — paper A**, full 90 minutes under exam conditions, in the
+study app (`/quiz`). Then review every wrong answer into
+`content/exam/attempts/`, and repair the weakest domain. Do not practice on
+A or B before this; use the spare pool.
 
-**S12.** L13 Exam Prep and Final Quiz, then **Mock #2**. Finish here — no new
-material after this session.
+**S12.** L13 Exam Prep and Final Quiz, then **Mock #2 — paper B**. Finish here
+— no new material after this session.
 
 **Exam day.** Cheat sheet and flashcards only. No cramming, no new material.
 
@@ -127,7 +129,7 @@ a slice of S7 and S8. It is 28% of the paper; nothing else outranks it.
 
 ## Readiness bar
 
-Two consecutive mocks at **85%+**, no single domain below **75%**, and every
+Two consecutive mocks (A then B) at **85%+**, no single domain below **75%**, and every
 Self-check in `content/notes/` answerable from memory. Below that, move the date rather
 than hope.
 

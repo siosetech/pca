@@ -14,7 +14,9 @@ caught out by at least once.
 | TSDB head → block flush | every **2h** |
 | Default retention | **15d** |
 | Staleness lookback | **5m** |
-| Alert resend delay | **1m** |
+| Prometheus `--rules.alert.resend-delay` | **1m** (how often Prometheus re-sends firing alerts to AM) |
+| Alertmanager `repeat_interval` default | **4h** (nag about an unchanged notification) |
+| Alertmanager `group_wait` / `group_interval` | **30s** / **5m** |
 | Alertmanager `resolve_timeout` default | **5m** |
 | Sample size | int64 ms timestamp + float64 value |
 | Exam | 90 min, multiple choice, valid **2 years** |

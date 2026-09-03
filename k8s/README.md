@@ -15,7 +15,7 @@ kubectl cluster-info
 
 You do **not** need a full kube-prometheus-stack install. You need to recognize:
 
-- `kubernetes_sd_configs` roles: `node`, `pod`, `service`, `endpoints`, `ingress`
+- `kubernetes_sd_configs` roles: `node`, `pod`, `service`, `endpoints`, `endpointslice`, `ingress`. There is no `deployment` role.
 - Relabeling from `__meta_kubernetes_*` labels
 - The `prometheus.io/scrape` annotation pattern
 

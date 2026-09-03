@@ -8,6 +8,10 @@ sub-topics, in exam-domain order. Service Discovery is examined under
 Observability; Exposition Format under Fundamentals — cards sit in the domain
 they will be asked under, not the note file they live in.
 
+The study app at http://localhost:43145/flashcards renders these tables
+(SM-2, 20 new/day). `npm run sync-content` in `web/` regenerates
+`web/lib/data/flashcards.ts`.
+
 > Import into Anki: copy a table body, strip the leading/trailing `|`, import
 > as pipe-separated with two fields.
 
@@ -53,7 +57,7 @@ they will be asked under, not the note file they live in.
 
 | Question | Answer |
 |---|---|
-| The five Kubernetes SD roles | node, service, pod, endpoints, endpointslice, ingress — there is no `deployment` role |
+| Kubernetes SD roles | node, service, pod, endpoints, endpointslice, ingress — there is no `deployment` role |
 | Which SD mechanism re-reads files on change | `file_sd_configs` |
 | Why use service discovery instead of a static list? | Targets come and go; SD plus relabeling keeps scrape config from rotting |
 
@@ -85,7 +89,7 @@ they will be asked under, not the note file they live in.
 | Default `evaluation_interval` | 1 minute |
 | Default `metrics_path` and `scheme` | `/metrics`, `http` |
 | Rule for scrape_timeout vs scrape_interval | `scrape_timeout` must be **less than** `scrape_interval` |
-| How to reload config without a restart | `SIGHUP`, or `POST /-/reload` with `--web.enable-lifecycle` |
+| How to reload Prometheus without a restart | `SIGHUP`, or `POST /-/reload` with `--web.enable-lifecycle` (Prometheus only) |
 | Relabel actions | replace, keep, drop, labelmap, labeldrop, labelkeep, hashmod, lowercase, uppercase, keepequal, dropequal |
 | Special target labels at relabel time | `__address__`, `__scheme__`, `__metrics_path__`, `__param_<name>`, `__meta_*` |
 | `relabel_configs` runs when? | **Before** the scrape — it selects and shapes the *target* |

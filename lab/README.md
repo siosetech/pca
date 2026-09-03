@@ -10,7 +10,7 @@ a query, a config block or an alert here that demonstrates it.
 |---|---:|---|
 | **prometheus** | 9090 | The thing being studied |
 | **alertmanager** | 9093 | Grouping, inhibition, silences, routing |
-| **grafana** | 3000 | Dashboarding domain. `admin` / `admin`, anonymous access on |
+| **grafana** | 3000 | Dashboarding domain. Login `admin` / `pca` |
 | **node-exporter** | 9100 | Host metrics — the USE method, `node_cpu_seconds_total` |
 | **blackbox** | 9115 | Black-box probing + the `__param_target` relabel dance |
 | **pushgateway** | 9091 | Batch-job metrics and their caveats |
@@ -33,7 +33,7 @@ Then open, in this order:
 2. http://localhost:9090/graph — type `up` and press Execute
 3. http://localhost:8000/metrics — read the raw exposition format
 4. http://localhost:9090/alerts — watch alerts go inactive → pending → firing
-5. http://localhost:3000 — the provisioned **PCA Lab** dashboard
+5. http://localhost:3000 — `admin` / `pca`, dashboard **PCA Lab Overview**
 
 ## Tear it down
 
@@ -49,8 +49,10 @@ podman compose logs -f prometheus
 podman compose restart prometheus
 podman compose up -d --build sample-app        # after editing app.py
 
-# Reload config without restarting (--web.enable-lifecycle is on)
+# Reload Prometheus without restarting (--web.enable-lifecycle is on).
+# Alertmanager has no such flag; POST /-/reload works without it, or SIGHUP.
 curl.exe -X POST http://localhost:9090/-/reload
+curl.exe -X POST http://localhost:9093/-/reload
 
 # Validate before reloading — do this every single time
 podman run --rm -v .\prometheus:/etc/prometheus:ro docker.io/prom/prometheus:latest `
@@ -72,7 +74,7 @@ These are the things worth actually *doing*, in rough order of exam value:
    Alertmanager. Then watch `TargetMissing` (via `absent()`) *not* fire, because
    the target still exists in service discovery — and understand why that
    distinction matters.
-2. **Add a target with file_sd.** Edit `prometheus/targets/node.yml`, add
+2. **Add a target with file_sd.** Edit `prometheus/file_sd/targets.yml`, add
    `pushgateway:9091`, and watch it appear on `/targets` **without a reload**.
 3. **Drop a metric.** Add a rule to `metric_relabel_configs` that drops
    `go_*` from the sample app. Confirm it's gone from the TSDB but still
@@ -164,5 +166,5 @@ warnings, which is harmless here.
 | `blackbox-icmp` targets down | ICMP from a rootless container is usually blocked. Expected; leave it as a broken target to study |
 | node-exporter shows the VM, not Windows | Correct — it's reporting the Podman machine's Linux kernel. Fine for learning |
 | Ports already in use | `netstat -ano \| findstr ":9090 "`, or change the host side of the port mapping |
-| Provisioned dashboard not on the Grafana home page | It isn't "recent" until you open it — **Dashboards → PCA Lab** |
+| Provisioned dashboard not on the Grafana home page | It isn't "recent" until you open it — **Dashboards → PCA Lab Overview** |
 | Sample app image won't build | `podman compose build --no-cache sample-app` and read the pip output |

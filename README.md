@@ -35,23 +35,26 @@ pca/
 | `content/notes/01`–`05` | One note per domain, in the official domain order |
 | `content/notes/99-cheatsheet.md` | The one page I re-read the morning of the exam |
 | `content/drills/` | Exercise sets — question, my answer, the reference answer, why |
-| `content/exam/questions.json` | **The** question bank. 120 questions. Single source of truth |
+| `content/exam/questions.json` | **The** question bank. 180 items: papers A and B (60 each, official weights) plus a 60-item spare pool |
 | `content/exam/attempts/` | Write-ups of my mock attempts, and the template |
+| `content/flashcards.md` | Spaced-repetition cards, in CNCF curriculum order. App: `/flashcards` |
 | `web/` | The same material as a browsable app. See [`web/README.md`](web/README.md) |
 | `lab/` | `compose.yaml` + configs. See [`lab/README.md`](lab/README.md) |
 | `progress/plan-4-weeks.md` | 12 sessions over 4 weeks, weighted by exam domains |
 
 ### One bank, one app
 
-`content/exam/questions.json` is the only place questions are edited. The app
-regenerates `web/lib/data/quiz.ts` from it on every build (`npm run
-sync-content`, wired as a `prebuild` hook), so the two cannot drift. The
-generated file is gitignored and marked do-not-edit.
+`content/exam/questions.json` is the only place questions are edited.
+`content/flashcards.md` is the only place flashcards are edited. The app
+regenerates `web/lib/data/quiz.ts` and `web/lib/data/flashcards.ts` via
+`npm run sync-content` (`predev` and `prebuild` hooks), so the generated
+files cannot drift. Do not edit them by hand; `quiz.ts` is gitignored.
 
-The exam runner lives at **`/quiz`** in the app: timed exam mode or practice
-mode, the domain-weighted draw, a question navigator, flag-for-review,
-multi-select questions, per-domain scoring against the 75% pass mark, and a
-full review linking each miss back to the note that covers it.
+The exam runner lives at **`/quiz`**: fixed papers **A** and **B** (timed, 60
+questions, official domain weights), or practice from the spare pool. Options
+are reshuffled every attempt. Per-domain scoring uses a **75%** line — a
+commonly reported pass mark; confirm it in the Candidate Handbook.
+Flashcards are at **`/flashcards`** (SM-2, 20 new/day).
 
 ---
 
@@ -73,7 +76,7 @@ npm run dev
 | Study app | http://localhost:43145 |
 | Prometheus | http://localhost:9090 |
 | Alertmanager | http://localhost:9093 |
-| Grafana (`admin` / `admin`) | http://localhost:3000 |
+| Grafana (`admin` / `pca`) | http://localhost:3000 |
 | Sample app metrics | http://localhost:8000/metrics |
 | node-exporter | http://localhost:9100/metrics |
 | Pushgateway | http://localhost:9091 |
