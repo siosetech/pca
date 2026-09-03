@@ -270,6 +270,9 @@ export function FlashcardDeck() {
             <Badge variant="outline">
               {DOMAINS.find((d) => d.key === active.domain)?.label ?? active.domain}
             </Badge>
+            {active.topic ? (
+              <span className="text-xs text-muted-foreground">{active.topic}</span>
+            ) : null}
             {state.reps === 0 ? (
               <span className="font-mono text-xs text-primary">new</span>
             ) : (
@@ -300,6 +303,9 @@ export function FlashcardDeck() {
                   <RichText text={active.back} />
                 </p>
               </>
+            )}
+            {!shown && (
+              <p className="text-sm text-muted-foreground/60">Answer hidden — say it first.</p>
             )}
           </CardContent>
         </Card>
@@ -357,7 +363,7 @@ export function FlashcardDeck() {
           </div>
 
           <div className="space-y-2">
-            <p className="text-sm font-medium">Decks</p>
+            <p className="text-sm font-medium text-muted-foreground">Exam domains</p>
             <div className="flex flex-wrap gap-2">
               {DOMAINS.map((d) => {
                 const n = flashcards.filter((c) => c.domain === d.key).length;
@@ -375,14 +381,16 @@ export function FlashcardDeck() {
                       )
                     }
                     className={cn(
-                      "rounded-md border px-3.5 py-2 text-sm transition",
+                      "rounded-md border px-3.5 py-2 text-left text-sm transition",
                       on
                         ? "border-foreground font-medium ring-1 ring-foreground/30"
                         : "border-border text-muted-foreground hover:bg-muted/60"
                     )}
                   >
-                    {d.label}
-                    <span className="ml-2 font-mono text-xs opacity-60">{n}</span>
+                    <span>{d.label}</span>
+                    <span className="ml-2 font-mono text-xs opacity-60">
+                      {Math.round(d.weight * 100)}% · {n}
+                    </span>
                   </button>
                 );
               })}
@@ -394,53 +402,25 @@ export function FlashcardDeck() {
               {nothingDue ? "Nothing due" : `Review ${Math.min(stats.due + stats.fresh, stats.due + NEW_PER_DAY)}`}
             </Button>
             {nothingDue && (
-              <span className="text-sm text-muted-foreground">
-                Everything is scheduled for a later day. That is the algorithm working.
-              </span>
+              <span className="text-sm text-muted-foreground">Caught up. Next due later.</span>
             )}
           </div>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">How the scheduling works</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 text-sm leading-relaxed text-muted-foreground">
-          <p>
-            SM-2, the algorithm behind Anki. Every card carries an{" "}
-            <span className="font-mono text-foreground">ease</span> factor and an interval. Grading a
-            card <strong className="font-medium text-foreground">Good</strong> multiplies its
-            interval by the ease; <strong className="font-medium text-foreground">Again</strong>{" "}
-            resets the interval and permanently lowers the ease, so a card you keep forgetting keeps
-            coming back sooner than one you do not.
-          </p>
-          <p>
-            That is the whole point: the deck spends your ten minutes on the material you are
-            actually losing, rather than the material you already know. New cards are capped at{" "}
-            {NEW_PER_DAY} a day so the review load does not compound.
-          </p>
-          <p>
-            Progress lives in this browser only. Cards are keyed by the text of the question, so
-            reordering{" "}
-            <span className="font-mono text-foreground">content/flashcards.md</span> never loses your
-            history — but rewording a question starts that card over.
-          </p>
-          {stats.learned > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setStore({});
-                persist({});
-                setQueue(null);
-              }}
-            >
-              Reset all progress
-            </Button>
-          )}
-        </CardContent>
-      </Card>
+      {stats.learned > 0 && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            setStore({});
+            persist({});
+            setQueue(null);
+          }}
+        >
+          Reset progress
+        </Button>
+      )}
     </div>
   );
 }

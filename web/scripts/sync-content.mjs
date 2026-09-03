@@ -121,14 +121,21 @@ function buildFlashcards() {
   const cards = [];
   const anomalies = [];
   let domain = null;
+  let topic = "";
 
   for (const raw of md.split("\n")) {
     const line = raw.trim();
 
+    const h3 = line.match(/^###\s+(.*)$/);
+    if (h3) {
+      topic = h3[1].trim();
+      continue;
+    }
     const heading = line.match(/^##\s+(.*)$/);
     if (heading) {
       const found = HEADING_TO_DOMAIN.find(([re]) => re.test(heading[1]));
       domain = found ? found[1] : null;
+      topic = "";
       continue;
     }
     if (!domain || !line.startsWith("|")) continue;
@@ -148,7 +155,7 @@ function buildFlashcards() {
     if (/^-{2,}$/.test(front) || /^:?-+:?$/.test(front)) continue; // separator row
     if (/^question$/i.test(front)) continue; // header row
 
-    cards.push({ id: fnv1a(front), domain, front, back });
+    cards.push({ id: fnv1a(front), domain, topic, front, back });
   }
 
   const seen = new Set();
@@ -162,9 +169,10 @@ function buildFlashcards() {
 
   const rows = unique
     .map(
-      (c) => `  { id: ${JSON.stringify(c.id)}, domain: ${JSON.stringify(c.domain)}, front: ${JSON.stringify(
-        c.front
-      )}, back: ${JSON.stringify(c.back)} },`
+      (c) =>
+        `  { id: ${JSON.stringify(c.id)}, domain: ${JSON.stringify(c.domain)}, topic: ${JSON.stringify(
+          c.topic
+        )}, front: ${JSON.stringify(c.front)}, back: ${JSON.stringify(c.back)} },`
     )
     .join("\n");
 
@@ -176,6 +184,7 @@ import type { DomainKey } from "./quiz";
 export type Flashcard = {
   id: string;
   domain: DomainKey;
+  topic: string;
   front: string;
   back: string;
 };
