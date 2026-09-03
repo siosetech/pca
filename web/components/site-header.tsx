@@ -7,6 +7,7 @@ const links = [
   { href: "/domains", label: "Curriculum" },
   { href: "/promql", label: "PromQL" },
   { href: "/quiz", label: "Quiz" },
+  { href: "/flashcards", label: "Flashcards" },
   { href: "/cheatsheet", label: "Cheatsheet" },
   { href: "/extras", label: "Extras" },
 ];

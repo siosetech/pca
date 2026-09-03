@@ -16,7 +16,8 @@ export type QuizQuestion = {
 };
 
 /** Official CNCF curriculum weights. Exams are drawn to these proportions. */
-export const DOMAINS: { key: DomainKey; label: string; weight: number }[] = [
+export const DOMAINS: { key: DomainKey; label: string; weight: number }[] =
+  [
   {
     "key": "obs",
     "label": "Observability Concepts",
