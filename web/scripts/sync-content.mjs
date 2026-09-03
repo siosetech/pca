@@ -45,6 +45,40 @@ function buildQuiz() {
     process.exit(1);
   }
 
+  // Each fixed paper must be a full 60 drawn to the official weights, or the
+  // mock is not measuring what the real exam measures.
+  for (const form of ["A", "B"]) {
+    const paper = all.filter((q) => q.form === form);
+    const want = Object.fromEntries(
+      (() => {
+        const raw = DOMAINS.map((d) => [d.key, 60 * d.weight]);
+        const base = raw.map(([k, v]) => [k, Math.floor(v)]);
+        let left = 60 - base.reduce((a, [, v]) => a + v, 0);
+        raw
+          .map(([k, v], i) => [v - Math.floor(v), i])
+          .sort((a, b) => b[0] - a[0])
+          .forEach(([, i]) => {
+            if (left > 0) {
+              base[i][1]++;
+              left--;
+            }
+          });
+        return base;
+      })()
+    );
+    const got = paper.reduce((a, q) => ({ ...a, [q.domain]: (a[q.domain] ?? 0) + 1 }), {});
+    const off = DOMAINS.filter((d) => (got[d.key] ?? 0) !== want[d.key]);
+    if (paper.length !== 60 || off.length) {
+      console.error(
+        `sync-content: paper ${form} is ${paper.length} questions`,
+        JSON.stringify(got),
+        "expected",
+        JSON.stringify(want)
+      );
+      process.exit(1);
+    }
+  }
+
   const rows = all
     .map(
       (q) => `  {
@@ -56,6 +90,7 @@ function buildQuiz() {
     answers: ${JSON.stringify(q.ans)},
     why: ${JSON.stringify(q.why)},
     ref: ${JSON.stringify(q.ref ?? "")},
+    form: ${JSON.stringify(q.form ?? null)},
   },`
     )
     .join("\n");
@@ -74,6 +109,8 @@ export type QuizQuestion = {
   answers: number[];
   why: string;
   ref: string;
+  /** "A" or "B" for the two fixed papers; null for the spare practice pool. */
+  form: "A" | "B" | null;
 };
 
 /** Official CNCF curriculum weights. Exams are drawn to these proportions. */

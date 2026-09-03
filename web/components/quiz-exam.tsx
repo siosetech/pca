@@ -23,8 +23,30 @@ const HISTORY_KEY = "pca-quiz-history-v1";
 
 type Mode = "exam" | "practice";
 type Phase = "setup" | "exam" | "results";
+type Paper = "A" | "B" | "practice";
 type Item = QuizQuestion & { shuffled: string[]; correct: number[] };
-type Attempt = { date: string; pct: number; count: number; mode: Mode };
+type Attempt = { date: string; pct: number; count: number; mode: Mode; paper: Paper };
+
+const PAPERS: { key: Paper; title: string; blurb: string }[] = [
+  {
+    key: "A",
+    title: "Exam A",
+    blurb:
+      "A fixed 60-question paper, timed. The same questions every time, so a retake is directly comparable with your first score.",
+  },
+  {
+    key: "B",
+    title: "Exam B",
+    blurb:
+      "A second fixed paper of 60 different questions, drawn to the same weights and written to the same difficulty.",
+  },
+  {
+    key: "practice",
+    title: "Practice",
+    blurb:
+      "Draw from the questions that are in neither paper, so drilling never spoils a mock. Choose the length, the domains, and whether it is timed.",
+  },
+];
 
 function shuffle<T>(input: T[]): T[] {
   const a = input.slice();
@@ -57,13 +79,7 @@ function allocate(total: number, keys: DomainKey[]): Record<string, number> {
   return Object.fromEntries(doms.map((d, i) => [d.key, base[i]]));
 }
 
-function buildExam(count: number, keys: DomainKey[]): Item[] {
-  const quota = allocate(count, keys);
-  let picked: QuizQuestion[] = [];
-  for (const key of keys) {
-    const pool = shuffle(quizQuestions.filter((q) => q.domain === key));
-    picked = picked.concat(pool.slice(0, Math.min(quota[key] ?? 0, pool.length)));
-  }
+function dress(picked: QuizQuestion[]): Item[] {
   return shuffle(picked).map((q) => {
     // never leave the answer where the author put it
     const order = shuffle(q.options.map((_, i) => i));
@@ -73,6 +89,23 @@ function buildExam(count: number, keys: DomainKey[]): Item[] {
       correct: q.answers.map((a) => order.indexOf(a)).sort((x, y) => x - y),
     };
   });
+}
+
+/** A fixed paper: the same 60 questions every attempt, order and options reshuffled. */
+function buildPaper(paper: "A" | "B"): Item[] {
+  return dress(quizQuestions.filter((q) => q.form === paper));
+}
+
+/** Practice: a weighted draw from whichever pool the learner chose. */
+function buildPractice(count: number, keys: DomainKey[], includePapers: boolean): Item[] {
+  const source = quizQuestions.filter((q) => includePapers || q.form === null);
+  const quota = allocate(count, keys);
+  let picked: QuizQuestion[] = [];
+  for (const key of keys) {
+    const pool = shuffle(source.filter((q) => q.domain === key));
+    picked = picked.concat(pool.slice(0, Math.min(quota[key] ?? 0, pool.length)));
+  }
+  return dress(picked);
 }
 
 const mmss = (s: number) => {
@@ -102,8 +135,10 @@ function saveAttempt(a: Attempt) {
 
 export function QuizExam() {
   const [phase, setPhase] = useState<Phase>("setup");
+  const [paper, setPaper] = useState<Paper>("A");
   const [mode, setMode] = useState<Mode>("exam");
-  const [count, setCount] = useState(60);
+  const [count, setCount] = useState(30);
+  const [includePapers, setIncludePapers] = useState(false);
   const [domains, setDomains] = useState<DomainKey[]>(DOMAINS.map((d) => d.key));
 
   const [items, setItems] = useState<Item[]>([]);
@@ -123,7 +158,14 @@ export function QuizExam() {
 
   useEffect(() => setHistory(readHistory()), []);
 
-  const quota = useMemo(() => allocate(count, domains), [count, domains]);
+  const poolSize = useMemo(
+    () => quizQuestions.filter((q) => includePapers || q.form === null).length,
+    [includePapers]
+  );
+  const practiceCount = Math.min(count, poolSize);
+  const quota = useMemo(() => allocate(practiceCount, domains), [practiceCount, domains]);
+  /** Fixed papers are always timed; only practice may be untimed. */
+  const timed = paper !== "practice" || mode === "exam";
   const deadline = startedAt + items.length * SECONDS_PER_QUESTION * 1000;
 
   /* one ticking clock, only while an exam is running */
@@ -135,8 +177,8 @@ export function QuizExam() {
   }, [phase]);
 
   useEffect(() => {
-    if (phase === "exam" && mode === "exam" && now && now >= deadline) finishRef.current();
-  }, [now, deadline, phase, mode]);
+    if (phase === "exam" && timed && now && now >= deadline) finishRef.current();
+  }, [now, deadline, phase, timed]);
 
   const start = useCallback(
     (questions: Item[]) => {
@@ -186,21 +228,19 @@ export function QuizExam() {
       pct,
       count: items.length,
       mode,
+      paper,
     };
     saveAttempt(attempt);
     setHistory((h) => [attempt, ...h].slice(0, 12));
     setNavOpen(false);
     setFilter("all");
     setPhase("results");
-  }, [items, picks, startedAt, mode]);
-
-  useEffect(() => {
-    finishRef.current = finish;
-  }, [finish]);
+  }, [items, picks, startedAt, mode, paper]);
+  finishRef.current = finish;
 
   const go = useCallback(
     (n: number) => {
-      setIdx(Math.max(0, Math.min(items.length - 1, n)));
+      setIdx((prev) => Math.max(0, Math.min(items.length - 1, n)) || 0);
       setRevealed(false);
       setConfirmFinish(false);
       if (typeof window !== "undefined") window.scrollTo(0, 0);
@@ -251,54 +291,130 @@ export function QuizExam() {
   /* ── setup ──────────────────────────────────────────────────────────── */
 
   if (phase === "setup") {
-    const minutes = Math.round((count * SECONDS_PER_QUESTION) / 60);
+    const isPaper = paper !== "practice";
+    const paperItems = isPaper ? quizQuestions.filter((q) => q.form === paper) : [];
+    const drawCount = isPaper ? paperItems.length : practiceCount;
+    const minutes = Math.round((drawCount * SECONDS_PER_QUESTION) / 60);
+    const paperQuota = isPaper
+      ? paperItems.reduce<Record<string, number>>(
+          (a, q) => ({ ...a, [q.domain]: (a[q.domain] ?? 0) + 1 }),
+          {}
+        )
+      : quota;
+    const shownDomains = isPaper ? DOMAINS.map((d) => d.key) : domains;
+    const best = history.filter((h) => h.paper === paper).reduce((m, h) => Math.max(m, h.pct), -1);
+
     return (
       <div className="space-y-6">
+        <div className="grid gap-3 sm:grid-cols-3">
+          {PAPERS.map((p) => {
+            const on = paper === p.key;
+            const attempts = history.filter((h) => h.paper === p.key).length;
+            return (
+              <button
+                key={p.key}
+                type="button"
+                aria-pressed={on}
+                onClick={() => setPaper(p.key)}
+                className={cn(
+                  "rounded-lg border p-4 text-left transition",
+                  on
+                    ? "border-foreground ring-1 ring-foreground/30"
+                    : "border-border hover:bg-muted/50"
+                )}
+              >
+                <div className="flex items-baseline gap-2">
+                  <span className="font-medium">{p.title}</span>
+                  <span className="font-mono text-xs text-muted-foreground">
+                    {p.key === "practice"
+                      ? `${quizQuestions.filter((q) => q.form === null).length} spare`
+                      : "60 q · 90 min"}
+                  </span>
+                </div>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{p.blurb}</p>
+                {attempts > 0 && (
+                  <p className="mt-2 font-mono text-xs text-muted-foreground/70">
+                    {attempts} attempt{attempts > 1 ? "s" : ""}
+                  </p>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Set up the attempt</CardTitle>
+            <CardTitle className="text-base">
+              {isPaper ? `Exam ${paper}` : "Set up the practice run"}
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            <Field label="Mode">
-              <Choice active={mode === "exam"} onClick={() => setMode("exam")}>
-                Exam — timed, results at the end
-              </Choice>
-              <Choice active={mode === "practice"} onClick={() => setMode("practice")}>
-                Practice — answer shown as you go
-              </Choice>
-            </Field>
+            {isPaper ? (
+              <p className="max-w-prose text-sm leading-relaxed text-muted-foreground">
+                Sixty fixed questions under exam conditions: no feedback until you submit, and the
+                clock does not stop. The question order and the answer positions are reshuffled on
+                every attempt, so you cannot learn the paper by position — only by knowing it.
+                {best >= 0 && (
+                  <>
+                    {" "}
+                    Your best on this paper so far is{" "}
+                    <span className="font-mono text-foreground">{best}%</span>.
+                  </>
+                )}
+              </p>
+            ) : (
+              <>
+                <Field label="Timing">
+                  <Choice active={mode === "exam"} onClick={() => setMode("exam")}>
+                    Timed — results at the end
+                  </Choice>
+                  <Choice active={mode === "practice"} onClick={() => setMode("practice")}>
+                    Untimed — answer shown as you go
+                  </Choice>
+                </Field>
 
-            <Field
-              label="Length"
-              hint="The real exam is 60 questions in 90 minutes. Shorter runs keep the same domain mix."
-            >
-              {[60, 30, 15].map((n) => (
-                <Choice key={n} active={count === n} onClick={() => setCount(n)}>
-                  {n} questions
-                </Choice>
-              ))}
-            </Field>
+                <Field label="Length">
+                  {[60, 30, 15].map((n) => (
+                    <Choice key={n} active={count === n} onClick={() => setCount(n)}>
+                      {n} questions
+                    </Choice>
+                  ))}
+                </Field>
 
-            <Field
-              label="Domains"
-              hint="Deselect a domain to drill only what is weak. Weights are re-normalised across what is left."
-            >
-              {DOMAINS.map((d) => (
-                <Choice
-                  key={d.key}
-                  active={domains.includes(d.key)}
-                  onClick={() =>
-                    setDomains((cur) =>
-                      cur.includes(d.key)
-                        ? cur.filter((k) => k !== d.key)
-                        : DOMAINS.map((x) => x.key).filter((k) => cur.includes(k) || k === d.key),
-                    )
-                  }
+                <Field
+                  label="Draw from"
+                  hint="By default practice uses only the questions that are in neither paper, so drilling cannot inflate a later mock score."
                 >
-                  {d.label}
-                </Choice>
-              ))}
-            </Field>
+                  <Choice active={!includePapers} onClick={() => setIncludePapers(false)}>
+                    Spare pool only ({quizQuestions.filter((q) => q.form === null).length})
+                  </Choice>
+                  <Choice active={includePapers} onClick={() => setIncludePapers(true)}>
+                    Everything ({quizQuestions.length})
+                  </Choice>
+                </Field>
+
+                <Field
+                  label="Domains"
+                  hint="Deselect a domain to drill only what is weak. Weights are re-normalised across what is left."
+                >
+                  {DOMAINS.map((d) => (
+                    <Choice
+                      key={d.key}
+                      active={domains.includes(d.key)}
+                      onClick={() =>
+                        setDomains((cur) =>
+                          cur.includes(d.key)
+                            ? cur.filter((k) => k !== d.key)
+                            : DOMAINS.map((x) => x.key).filter((k) => cur.includes(k) || k === d.key),
+                        )
+                      }
+                    >
+                      {d.label}
+                    </Choice>
+                  ))}
+                </Field>
+              </>
+            )}
 
             <div className="space-y-2">
               <p className="text-sm font-medium">This attempt will draw</p>
@@ -311,21 +427,23 @@ export function QuizExam() {
                   </tr>
                 </thead>
                 <tbody>
-                  {DOMAINS.filter((d) => domains.includes(d.key)).map((d) => (
+                  {DOMAINS.filter((d) => shownDomains.includes(d.key)).map((d) => (
                     <tr key={d.key} className="border-t border-border">
                       <td className="py-1.5">{d.label}</td>
                       <td className="py-1.5 text-right font-mono text-muted-foreground">
                         {Math.round(d.weight * 100)}%
                       </td>
-                      <td className="py-1.5 text-right font-mono tabular-nums">{quota[d.key] ?? 0}</td>
+                      <td className="py-1.5 text-right font-mono tabular-nums">
+                        {paperQuota[d.key] ?? 0}
+                      </td>
                     </tr>
                   ))}
                   <tr className="border-t border-border font-medium">
                     <td className="py-1.5">Total</td>
                     <td className="py-1.5 text-right font-mono text-muted-foreground">
-                      {mode === "exam" ? `${minutes} min` : "untimed"}
+                      {timed ? `${minutes} min` : "untimed"}
                     </td>
-                    <td className="py-1.5 text-right font-mono tabular-nums">{count}</td>
+                    <td className="py-1.5 text-right font-mono tabular-nums">{drawCount}</td>
                   </tr>
                 </tbody>
               </table>
@@ -333,10 +451,16 @@ export function QuizExam() {
 
             <div className="flex flex-wrap items-center gap-3">
               <Button
-                disabled={!domains.length}
-                onClick={() => start(buildExam(count, domains))}
+                disabled={!isPaper && (!domains.length || practiceCount === 0)}
+                onClick={() =>
+                  start(
+                    isPaper
+                      ? buildPaper(paper)
+                      : buildPractice(practiceCount, domains, includePapers)
+                  )
+                }
               >
-                Start {mode === "exam" ? "exam" : "practice"}
+                {isPaper ? `Start exam ${paper}` : "Start practice"}
               </Button>
               <span className="font-mono text-xs text-muted-foreground">
                 1–4 answer · ← → move · F flag · N navigator
@@ -358,7 +482,8 @@ export function QuizExam() {
                       {h.pct >= PASS_RATIO * 100 ? "pass" : "fail"}
                     </Badge>
                     <span className="font-mono text-xs text-muted-foreground">
-                      {h.date} · {h.count} q · {h.mode}
+                      {h.paper === "practice" ? "practice" : `exam ${h.paper}`} · {h.date} ·{" "}
+                      {h.count} q
                     </span>
                     <span className="ml-auto font-mono font-medium tabular-nums">{h.pct}%</span>
                   </div>
@@ -409,8 +534,9 @@ export function QuizExam() {
                   {Math.round(PASS_RATIO * 100)}% pass mark
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  {mode === "exam" ? "Exam mode" : "Practice mode"} · {mmss(elapsed)} elapsed
-                  {mode === "exam" && ` of ${mmss(items.length * SECONDS_PER_QUESTION)}`}
+                  {paper === "practice" ? "Practice" : `Exam ${paper}`} ·{" "}
+                  {timed ? "timed" : "untimed"} · {mmss(elapsed)} elapsed
+                  {timed && ` of ${mmss(items.length * SECONDS_PER_QUESTION)}`}
                 </p>
               </div>
             </div>
@@ -557,7 +683,7 @@ export function QuizExam() {
           <Button
             variant="outline"
             disabled={missed === 0}
-            onClick={() => start(shuffle(result.rows.filter((r) => !r.ok).map((r) => r.q)))}
+            onClick={() => start(dress(result.rows.filter((r) => !r.ok).map((r) => r.q)))}
           >
             Retry the {missed} I missed
           </Button>
@@ -570,10 +696,11 @@ export function QuizExam() {
 
   const q = items[idx];
   const picked = picks[idx] ?? [];
-  const graded = revealed && mode === "practice";
+  const graded = revealed && !timed;
   const correct = graded && same(picked, q.correct);
-  const left =
-    mode === "exam" ? (deadline - (now || Date.now())) / 1000 : ((now || Date.now()) - startedAt) / 1000;
+  const left = timed
+    ? (deadline - (now || Date.now())) / 1000
+    : ((now || Date.now()) - startedAt) / 1000;
   const answered = picks.filter((p) => p.length).length;
 
   return (
@@ -588,8 +715,8 @@ export function QuizExam() {
           <span
             className={cn(
               "ml-auto font-mono text-base tabular-nums",
-              mode === "exam" && left < 300 && "text-destructive",
-              mode === "exam" && left >= 300 && left < 900 && "text-amber-500",
+              timed && left < 300 && "text-destructive",
+              timed && left >= 300 && left < 900 && "text-amber-500",
             )}
           >
             {mmss(left)}
@@ -680,16 +807,13 @@ export function QuizExam() {
               </Button>
               <Button onClick={finish}>Score anyway</Button>
             </>
-          ) : mode === "practice" && !revealed ? (
+          ) : !timed && !revealed ? (
             <Button disabled={!picked.length} onClick={() => setRevealed(true)}>
               Check answer
             </Button>
           ) : idx === items.length - 1 ? (
             <Button
-              onClick={() => {
-                if (answered < items.length) setConfirmFinish(true);
-                else finish();
-              }}
+              onClick={() => (answered < items.length ? setConfirmFinish(true) : finish())}
             >
               Finish &amp; score
             </Button>
@@ -750,8 +874,7 @@ export function QuizExam() {
                   className="ml-auto"
                   onClick={() => {
                     setNavOpen(false);
-                    if (answered < items.length) setConfirmFinish(true);
-                    else finish();
+                    answered < items.length ? setConfirmFinish(true) : finish();
                   }}
                 >
                   Finish &amp; score
