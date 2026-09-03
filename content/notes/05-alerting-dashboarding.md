@@ -175,7 +175,7 @@ symptom-based alerts stay roughly constant, because the number of ways users
 experience failure is small.
 
 The natural sources of symptom alerts are the frameworks from
-`docs/01`: the **Four Golden Signals** for user-facing services, **RED** for
+`content/notes/01`: the **Four Golden Signals** for user-facing services, **RED** for
 request-driven ones, **USE** for the resources underneath. SLO burn rate is the
 most refined version: alert when the error budget is being consumed fast enough
 to run out early, rather than on any single bad minute.

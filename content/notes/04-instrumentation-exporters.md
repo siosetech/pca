@@ -76,7 +76,7 @@ Instrumentation advice that shows up as exam questions:
   status), and a histogram of durations. That's 90% of the value.
 - Choose histogram buckets to straddle your **SLO threshold** — if the SLO is
   300 ms, make sure `le="0.3"` exists.
-- Keep label values **bounded** (see cardinality, `docs/01`).
+- Keep label values **bounded** (see cardinality, `content/notes/01`).
 - Metrics are **cheap to expose, expensive to have too many of**.
 
 ## 4.3 Exporters

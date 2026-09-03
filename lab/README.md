@@ -1,7 +1,7 @@
 # The lab
 
 A single-node Prometheus stack that runs on the laptop under Podman. Its job is
-to make everything in `docs/` reproducible: every fact in the notes should have
+to make everything in `content/notes/` reproducible: every fact in the notes should have
 a query, a config block or an alert here that demonstrates it.
 
 ## What's in it

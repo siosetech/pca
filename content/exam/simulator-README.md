@@ -16,11 +16,11 @@ start D:\dev\workspace\pca\drills\mock-exams\simulator\index.html
 - **Exam mode** — timed at 90 seconds per question (60 questions = 90 minutes),
   no feedback until the end, flag-for-review, and a navigator grid showing which
   questions are answered, flagged and current.
-- **Practice mode** — untimed, with the explanation and the `docs/` reference
+- **Practice mode** — untimed, with the explanation and the `content/notes/` reference
   revealed as soon as you answer.
 - **Results** — overall score against the 75% pass mark framed as an error
   budget, a per-domain breakdown with the threshold marked, and a full review of
-  every question with the reasoning and where it's covered in `docs/`.
+  every question with the reasoning and where it's covered in `content/notes/`.
 - **Retry the ones you missed** in one click, and an attempt history saved in
   the browser.
 
@@ -33,7 +33,7 @@ The simulator assumes **60 questions, 90 minutes, 75% to pass**. The 90-minute
 duration is published by the Linux Foundation; the question count and pass mark
 are the commonly reported figures rather than officially published ones —
 confirm them in the
-[Candidate Handbook](https://docs.linuxfoundation.org/tc-docs/certification/lf-handbook2)
+[Candidate Handbook](https://docs.linuxfoundation.org/tc-content/notes/certification/lf-handbook2)
 and adjust `PASS` and `SEC_PER_Q` near the top of the script if they differ.
 
 ## Adding your own questions
@@ -50,10 +50,10 @@ the `BANK` constant in the script and add an object:
   "opts": ["A", "B", "C", "D"],    // exactly four
   "ans": [0],                      // indices of the correct options
   "why": "Why the right answer is right, and why the traps are wrong.",
-  "ref": "docs/03-promql.md"
+  "ref": "content/notes/03-promql.md"
 }
 ```
 
 Two conventions worth keeping: write the explanation so it teaches rather than
-just confirms, and always point `ref` at the section of `docs/` that should have
-covered it. If a question has no home in `docs/`, that's a gap in the notes.
+just confirms, and always point `ref` at the section of `content/notes/` that should have
+covered it. If a question has no home in `content/notes/`, that's a gap in the notes.

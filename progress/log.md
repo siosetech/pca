@@ -20,7 +20,7 @@ whether the plan is actually happening.
 ### Day 1 — 2026-09-02
 
 **Covered:** Repo scaffolded. Exam blueprint read, domain weights noted
-(PromQL 28% is the priority). Exam simulator built under `drills/mock-exams/simulator/`.
+(PromQL 28% is the priority). Exam simulator built under `content/exam/simulator/`.
 **Lab:** Stack up, but nothing reachable from the browser — every port refused
 while every container was healthy. Cause: the Podman machine was **rootful**, so
 ports were published with kernel DNAT and no listening socket existed for WSL2 to

@@ -125,7 +125,7 @@ Prometheus **pulls** (scrapes) targets over HTTP. This is a real exam topic.
 | Short-lived jobs | Awkward — the job may die before a scrape | Natural fit |
 
 The pull model's escape hatch for short-lived batch jobs is the **Pushgateway**
-(see `docs/04`). It is an exception, not a general push endpoint.
+(see `content/notes/04`). It is an exception, not a general push endpoint.
 
 > Mental model: pull means **the monitoring system holds the target list**. That
 > single fact explains almost every pull-vs-push tradeoff above.

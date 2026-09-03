@@ -1,0 +1,2059 @@
+[
+ {
+  "id": "obs-01",
+  "domain": "obs",
+  "type": "single",
+  "q": "You are asked to define a monitoring strategy for a fleet of storage servers, focusing on the disks themselves. Which method is designed for this kind of resource?",
+  "opts": [
+   "The USE method",
+   "The RED method",
+   "The Four Golden Signals",
+   "The Three Pillars"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "USE — Utilization, Saturation, Errors — is the method for resources such as CPUs, disks, memory and network interfaces. RED is for request-driven services.",
+  "ref": "content/notes/01-observability-concepts.md"
+ },
+ {
+  "id": "obs-02",
+  "domain": "obs",
+  "type": "single",
+  "q": "What do the letters in the RED method stand for?",
+  "opts": [
+   "Rate, Errors, Duration",
+   "Requests, Endpoints, Downtime",
+   "Reliability, Efficiency, Durability",
+   "Rate, Efficiency, Delay"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "RED = Rate (requests per second), Errors (failed requests per second), Duration (latency distribution). It is the service-oriented counterpart to USE.",
+  "ref": "content/notes/01-observability-concepts.md"
+ },
+ {
+  "id": "obs-03",
+  "domain": "obs",
+  "type": "multi",
+  "q": "Which of the following are the Four Golden Signals as defined in the Google SRE book? (Select all that apply.)",
+  "opts": [
+   "Latency",
+   "Traffic",
+   "Saturation",
+   "Utilization"
+  ],
+  "ans": [
+   0,
+   1,
+   2
+  ],
+  "why": "The Four Golden Signals are Latency, Traffic, Errors and Saturation. Utilization belongs to USE, not to the Golden Signals.",
+  "ref": "content/notes/01-observability-concepts.md"
+ },
+ {
+  "id": "obs-04",
+  "domain": "obs",
+  "type": "single",
+  "q": "A service has an SLO of 99.9% availability measured over a 30-day window. Approximately how much downtime does the error budget allow?",
+  "opts": [
+   "About 43 minutes",
+   "About 7 hours",
+   "About 4 minutes",
+   "About 8 hours"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "0.1% of 30 days = 43.2 minutes. 99% would be about 7.2 hours, 99.99% about 4.3 minutes.",
+  "ref": "content/notes/01-observability-concepts.md"
+ },
+ {
+  "id": "obs-05",
+  "domain": "obs",
+  "type": "single",
+  "q": "Which of these is a contract with a customer that carries financial or contractual penalties when breached?",
+  "opts": [
+   "The SLA",
+   "The SLO",
+   "The SLI",
+   "The error budget"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "The SLA (Service Level Agreement) is the external contract. The SLO is the stricter internal target, and the SLI is the underlying measurement.",
+  "ref": "content/notes/01-observability-concepts.md"
+ },
+ {
+  "id": "obs-06",
+  "domain": "obs",
+  "type": "single",
+  "q": "Which statement best describes an advantage Prometheus gains from its pull-based model?",
+  "opts": [
+   "Target health is monitored for free, because a failed scrape produces up == 0",
+   "Targets behind NAT or a firewall are easier to reach",
+   "Short-lived batch jobs are captured reliably without extra components",
+   "Each application controls its own scrape interval"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Because Prometheus initiates the connection, a failed scrape is itself a signal. Pull's weaknesses are exactly the other three options — NAT traversal and short-lived jobs are the classic pull problems.",
+  "ref": "content/notes/01-observability-concepts.md"
+ },
+ {
+  "id": "obs-07",
+  "domain": "obs",
+  "type": "single",
+  "q": "Which of the following label values is most likely to cause a cardinality explosion?",
+  "opts": [
+   "customer_email",
+   "http_method",
+   "status_code",
+   "environment"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Cardinality risk comes from unbounded values. Email addresses, user IDs, session tokens, full URLs and timestamps are unbounded; HTTP methods, status codes and environment names are enumerable.",
+  "ref": "content/notes/01-observability-concepts.md"
+ },
+ {
+  "id": "obs-08",
+  "domain": "obs",
+  "type": "single",
+  "q": "An engineer needs to know exactly where the time went inside a single slow request that crossed six microservices. Which telemetry signal answers this?",
+  "opts": [
+   "Distributed traces",
+   "Metrics",
+   "Logs",
+   "Recording rules"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Traces follow one request across service boundaries and attribute latency to each span. Metrics aggregate and lose the individual request; logs record events but do not stitch the call chain together.",
+  "ref": "content/notes/01-observability-concepts.md"
+ },
+ {
+  "id": "obs-09",
+  "domain": "obs",
+  "type": "single",
+  "q": "How is an error budget defined?",
+  "opts": [
+   "100% minus the SLO",
+   "The SLA minus the SLO",
+   "The number of alerts fired in a period",
+   "The ratio of errors to total requests"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "The error budget is the amount of unreliability the SLO permits: 100% − SLO. A 99.9% SLO gives a 0.1% budget.",
+  "ref": "content/notes/01-observability-concepts.md"
+ },
+ {
+  "id": "obs-10",
+  "domain": "obs",
+  "type": "single",
+  "q": "Which statement best captures the difference between monitoring and observability?",
+  "opts": [
+   "Monitoring watches failure modes you predicted; observability lets you ask new questions of the system after the fact",
+   "Monitoring is for infrastructure; observability is for applications",
+   "Monitoring uses metrics; observability uses logs",
+   "Monitoring is open source; observability is commercial"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Observability is a property of a system — can you infer internal state from its outputs? High-dimensional data is what makes new, unplanned questions answerable.",
+  "ref": "content/notes/01-observability-concepts.md"
+ },
+ {
+  "id": "obs-11",
+  "domain": "obs",
+  "type": "single",
+  "q": "Following symptom-based alerting practice, which condition is the best candidate to page an on-call engineer at 3am?",
+  "opts": [
+   "The proportion of user requests returning 5xx has exceeded the SLO threshold",
+   "A node's CPU utilisation is above 90%",
+   "A pod restarted twice in the last hour",
+   "Disk usage on a worker node crossed 70%"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Pages should be urgent, actionable and user-visible. The other three are causes, not symptoms — they belong on a dashboard or in a ticket, since none of them necessarily means users are affected.",
+  "ref": "content/notes/01-observability-concepts.md"
+ },
+ {
+  "id": "obs-12",
+  "domain": "obs",
+  "type": "single",
+  "q": "Which property makes metrics the natural foundation for alerting compared with logs?",
+  "opts": [
+   "Their storage cost does not grow with request volume, because they are aggregates",
+   "They retain the full detail of every individual event",
+   "They are written in a human-readable text format",
+   "They are always sampled, so they are cheap"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "A metric is an aggregate over time — a fixed number of series regardless of traffic. Logs and traces grow with event volume, which makes them expensive as an always-on alerting substrate.",
+  "ref": "content/notes/01-observability-concepts.md"
+ },
+ {
+  "id": "obs-13",
+  "domain": "obs",
+  "type": "single",
+  "q": "Which scenario is the strongest argument for pushing metrics rather than having them scraped?",
+  "opts": [
+   "A nightly cron job that runs for 20 seconds and exits",
+   "A web server running continuously behind a load balancer",
+   "A database with a dedicated exporter alongside it",
+   "A Kubernetes deployment with three long-lived replicas"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "A job whose lifetime is shorter than the scrape interval may never be scraped at all. That is exactly the gap the Pushgateway fills — and the only case it is recommended for.",
+  "ref": "content/notes/01-observability-concepts.md"
+ },
+ {
+  "id": "obs-14",
+  "domain": "obs",
+  "type": "single",
+  "q": "A metric http_requests_total carries three labels: method (5 possible values), status (8 possible values) and endpoint (20 possible values). Assuming every combination occurs, how many time series does this single metric produce?",
+  "opts": [
+   "800",
+   "33",
+   "160",
+   "It cannot be calculated"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Cardinality is the product of the label value counts: 5 × 8 × 20 = 800 distinct series from one metric name.",
+  "ref": "content/notes/01-observability-concepts.md"
+ },
+ {
+  "id": "fund-01",
+  "domain": "fund",
+  "type": "single",
+  "q": "A prometheus.yml contains no scrape_interval anywhere. How often will targets be scraped?",
+  "opts": [
+   "Every 1 minute",
+   "Every 15 seconds",
+   "Every 30 seconds",
+   "Every 10 seconds"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "The default global scrape_interval is 1 minute. 15s is a very common override, but it is not the default. scrape_timeout defaults to 10s and evaluation_interval to 1 minute.",
+  "ref": "content/notes/02-prometheus-fundamentals.md"
+ },
+ {
+  "id": "fund-02",
+  "domain": "fund",
+  "type": "single",
+  "q": "Prometheus is started with no retention flags. How long is local data kept?",
+  "opts": [
+   "15 days",
+   "30 days",
+   "Forever, until the disk fills",
+   "7 days"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "--storage.tsdb.retention.time defaults to 15d. A size-based limit can be set with --storage.tsdb.retention.size; whichever triggers first wins.",
+  "ref": "content/notes/02-prometheus-fundamentals.md"
+ },
+ {
+  "id": "fund-03",
+  "domain": "fund",
+  "type": "single",
+  "q": "How often does Prometheus normally write the in-memory head block out to a persistent block on disk?",
+  "opts": [
+   "Every 2 hours",
+   "Every 15 minutes",
+   "Every 24 hours",
+   "On every scrape"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "The head block is flushed to a persistent, immutable block every 2 hours. Compaction later merges those blocks into larger ones.",
+  "ref": "content/notes/02-prometheus-fundamentals.md"
+ },
+ {
+  "id": "fund-04",
+  "domain": "fund",
+  "type": "single",
+  "q": "What is the purpose of the write-ahead log (WAL)?",
+  "opts": [
+   "To recover in-memory samples that have not yet been flushed to a block, after a crash",
+   "To replicate samples to a second Prometheus server",
+   "To store the results of recording rules",
+   "To buffer alerts before they reach Alertmanager"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Samples land in the head block in memory and are appended to the WAL. If Prometheus crashes before the 2-hour flush, the WAL is replayed on startup.",
+  "ref": "content/notes/02-prometheus-fundamentals.md"
+ },
+ {
+  "id": "fund-05",
+  "domain": "fund",
+  "type": "single",
+  "q": "How far back does Prometheus look for the most recent sample when evaluating an instant query, by default?",
+  "opts": [
+   "5 minutes",
+   "1 minute",
+   "15 seconds",
+   "2 hours"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "The staleness lookback delta is 5 minutes. This is why a scrape_interval close to or above 5 minutes causes series to appear and disappear from queries.",
+  "ref": "content/notes/02-prometheus-fundamentals.md"
+ },
+ {
+  "id": "fund-06",
+  "domain": "fund",
+  "type": "single",
+  "q": "Which of the following pairs of expressions are equivalent?",
+  "opts": [
+   "up{job=\"api\"} and {__name__=\"up\", job=\"api\"}",
+   "up{job=\"api\"} and up[job=\"api\"]",
+   "up{job=\"api\"} and sum(up{job=\"api\"})",
+   "up{job=\"api\"} and up{job=~\"api\"} offset 0"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "The metric name is stored in the reserved label __name__, so a name selector and a __name__ matcher are the same thing. This is what lets you regex-match on the metric name itself.",
+  "ref": "content/notes/02-prometheus-fundamentals.md"
+ },
+ {
+  "id": "fund-07",
+  "domain": "fund",
+  "type": "single",
+  "q": "A third-party exporter emits a very high-cardinality metric you never query. Where do you drop it so it never reaches the TSDB?",
+  "opts": [
+   "metric_relabel_configs",
+   "relabel_configs",
+   "rule_files",
+   "external_labels"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "relabel_configs runs before the scrape and decides which targets to scrape and how to label them. metric_relabel_configs runs after the scrape, on individual samples — that is the stage for dropping unwanted metrics.",
+  "ref": "content/notes/02-prometheus-fundamentals.md"
+ },
+ {
+  "id": "fund-08",
+  "domain": "fund",
+  "type": "single",
+  "q": "In a Kubernetes service discovery block, you want Prometheus to scrape only pods carrying the annotation prometheus.io/scrape=\"true\". Which relabel action do you use?",
+  "opts": [
+   "keep",
+   "drop",
+   "labelmap",
+   "replace"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "keep discards every target whose source labels do not match the regex. drop is its inverse. labelmap copies labels by name pattern, and replace writes a new label value.",
+  "ref": "content/notes/02-prometheus-fundamentals.md"
+ },
+ {
+  "id": "fund-09",
+  "domain": "fund",
+  "type": "single",
+  "q": "Which of the following is NOT a valid Kubernetes service discovery role?",
+  "opts": [
+   "deployment",
+   "endpoints",
+   "ingress",
+   "node"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "The roles are node, service, pod, endpoints, endpointslice and ingress. There is no deployment role — Deployment-level facts come from kube-state-metrics instead.",
+  "ref": "content/notes/02-prometheus-fundamentals.md"
+ },
+ {
+  "id": "fund-10",
+  "domain": "fund",
+  "type": "multi",
+  "q": "Which of the following consume the external_labels defined in the global block? (Select all that apply.)",
+  "opts": [
+   "Alerts sent to Alertmanager",
+   "Samples shipped via remote_write",
+   "Series exposed on the /federate endpoint",
+   "Queries run in the local expression browser"
+  ],
+  "ans": [
+   0,
+   1,
+   2
+  ],
+  "why": "external_labels are attached to data leaving the server — federation, remote_write and alerts. They are not applied to local queries, which is why you cannot see them in the expression browser.",
+  "ref": "content/notes/02-prometheus-fundamentals.md"
+ },
+ {
+  "id": "fund-11",
+  "domain": "fund",
+  "type": "single",
+  "q": "How is high availability normally achieved for the Prometheus server itself?",
+  "opts": [
+   "Run two identically configured servers scraping the same targets",
+   "Run a cluster of three servers with a Raft quorum",
+   "Enable the built-in replication flag",
+   "Point two servers at a shared network volume"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Prometheus has no clustering. HA is two independent, identically configured servers; deduplication happens downstream in Alertmanager, which is clustered via gossip.",
+  "ref": "content/notes/02-prometheus-fundamentals.md"
+ },
+ {
+  "id": "fund-12",
+  "domain": "fund",
+  "type": "single",
+  "q": "What is the /federate endpoint used for?",
+  "opts": [
+   "Letting one Prometheus server scrape a selected subset of series from another",
+   "Sending samples to long-term storage",
+   "Sharing alert state between Prometheus servers",
+   "Joining several servers into a single queryable cluster"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Federation is a scrape between Prometheus servers, typically hierarchical: a global server pulls aggregated (usually recording-rule) series from per-datacentre servers. It is not a clustering mechanism.",
+  "ref": "content/notes/02-prometheus-fundamentals.md"
+ },
+ {
+  "id": "fund-13",
+  "domain": "fund",
+  "type": "single",
+  "q": "Which two labels does Prometheus attach to every scraped series automatically?",
+  "opts": [
+   "job and instance",
+   "job and cluster",
+   "instance and env",
+   "name and address"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "job comes from job_name in the scrape config; instance is derived from __address__. Everything else must come from static labels, service discovery or relabeling.",
+  "ref": "content/notes/02-prometheus-fundamentals.md"
+ },
+ {
+  "id": "fund-14",
+  "domain": "fund",
+  "type": "single",
+  "q": "How is a single sample stored in the Prometheus TSDB?",
+  "opts": [
+   "A float64 value with an int64 millisecond timestamp",
+   "A string value with an RFC3339 timestamp",
+   "An int64 value with a second-resolution timestamp",
+   "A typed value whose type depends on the metric type"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Every sample is a float64 plus an int64 millisecond timestamp. There are no integers, strings or booleans in the TSDB — and metric types are only a convention carried in # TYPE.",
+  "ref": "content/notes/02-prometheus-fundamentals.md"
+ },
+ {
+  "id": "fund-15",
+  "domain": "fund",
+  "type": "multi",
+  "q": "You have edited prometheus.yml and want the change to take effect without losing the in-memory head block. Which approaches work? (Select all that apply.)",
+  "opts": [
+   "Send SIGHUP to the Prometheus process",
+   "POST to /-/reload with --web.enable-lifecycle enabled",
+   "Run promtool reload config",
+   "Delete the WAL directory"
+  ],
+  "ans": [
+   0,
+   1
+  ],
+  "why": "SIGHUP and POST /-/reload both reload configuration in place. promtool validates configuration but cannot reload a running server, and deleting the WAL destroys unflushed data.",
+  "ref": "content/notes/02-prometheus-fundamentals.md"
+ },
+ {
+  "id": "fund-16",
+  "domain": "fund",
+  "type": "single",
+  "q": "You need p99 latency across 30 replicas of a service. Which instrumentation choice makes this possible?",
+  "opts": [
+   "A histogram, because bucket counts can be summed across instances before computing the quantile",
+   "A summary, because it computes exact quantiles in the client",
+   "A gauge updated with the latest request duration",
+   "A counter of requests labelled by duration"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Histogram buckets are counters and can be aggregated. A summary's quantiles are computed per instance, and averaging quantiles across instances is mathematically meaningless.",
+  "ref": "content/notes/02-prometheus-fundamentals.md"
+ },
+ {
+  "id": "promql-01",
+  "domain": "promql",
+  "type": "single",
+  "q": "What does rate() take as input, and what does it return?",
+  "opts": [
+   "It takes a range vector and returns an instant vector",
+   "It takes an instant vector and returns a range vector",
+   "It takes a range vector and returns a range vector",
+   "It takes an instant vector and returns a scalar"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "rate() consumes a range vector such as x[5m] and produces an instant vector — one per-second value per series. That is why rate() output can be graphed and further aggregated, but x[5m] on its own cannot.",
+  "ref": "content/notes/03-promql.md"
+ },
+ {
+  "id": "promql-02",
+  "domain": "promql",
+  "type": "single",
+  "q": "You need the total per-second request rate across all instances of a service. Which expression is correct?",
+  "opts": [
+   "sum(rate(http_requests_total[5m]))",
+   "rate(sum(http_requests_total)[5m:])",
+   "rate(sum(http_requests_total[5m]))",
+   "sum(increase(http_requests_total[5m]))"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Always rate first, then sum. Summing counters before rating hides per-series counter resets, so a restart appears as a large negative dip that rate() can no longer correct for.",
+  "ref": "content/notes/03-promql.md"
+ },
+ {
+  "id": "promql-03",
+  "domain": "promql",
+  "type": "single",
+  "q": "Given a metric with labels job, instance, method and status, what does sum by (job) (...) return?",
+  "opts": [
+   "Series labelled only with job; all other labels are discarded",
+   "Series labelled with everything except job",
+   "Series labelled with job and instance",
+   "A single scalar value"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "by keeps only the labels you list. without is the inverse — it removes the listed labels and keeps everything else.",
+  "ref": "content/notes/03-promql.md"
+ },
+ {
+  "id": "promql-04",
+  "domain": "promql",
+  "type": "single",
+  "q": "A job label has the values api-server, api-worker and web. Which series does up{job=~\"api\"} return?",
+  "opts": [
+   "None, because PromQL regexes are fully anchored",
+   "Both api-server and api-worker",
+   "All three series",
+   "Only an exact match named api, if one exists, otherwise an error"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "PromQL regular expressions are fully anchored, so =~\"api\" behaves like ^api$. You would need job=~\"api.*\" to match the two api- jobs.",
+  "ref": "content/notes/03-promql.md"
+ },
+ {
+  "id": "promql-05",
+  "domain": "promql",
+  "type": "single",
+  "q": "Which expression correctly computes the 95th percentile request latency from a histogram?",
+  "opts": [
+   "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket[5m])))",
+   "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])))",
+   "histogram_quantile(0.95, rate(http_request_duration_seconds_count[5m]))",
+   "quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Two rules: rate the _bucket series first, and keep the le label through the aggregation. Dropping le leaves nothing to interpolate between and returns NaN; quantile() aggregates across series, which is a different operation entirely.",
+  "ref": "content/notes/03-promql.md"
+ },
+ {
+  "id": "promql-06",
+  "domain": "promql",
+  "type": "single",
+  "q": "How do you compute the average request duration from a histogram named http_request_duration_seconds?",
+  "opts": [
+   "rate(http_request_duration_seconds_sum[5m]) / rate(http_request_duration_seconds_count[5m])",
+   "http_request_duration_seconds_sum / http_request_duration_seconds_count",
+   "avg(http_request_duration_seconds_bucket)",
+   "histogram_quantile(0.5, rate(http_request_duration_seconds_bucket[5m]))"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Divide the two rates to get the recent average. Dividing the raw counters gives the all-time average since process start, and the median from histogram_quantile is not the mean.",
+  "ref": "content/notes/03-promql.md"
+ },
+ {
+  "id": "promql-07",
+  "domain": "promql",
+  "type": "single",
+  "q": "What is the relationship between increase() and rate()?",
+  "opts": [
+   "increase(x[t]) is equivalent to rate(x[t]) multiplied by t in seconds",
+   "increase() is rate() without extrapolation",
+   "increase() works on gauges, rate() works on counters",
+   "increase() returns only whole numbers, rate() returns fractions"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "increase() is syntactic sugar for rate() × the range in seconds. Both extrapolate to the window edges, which is why increase() often returns non-integers even for counters of whole events.",
+  "ref": "content/notes/03-promql.md"
+ },
+ {
+  "id": "promql-08",
+  "domain": "promql",
+  "type": "single",
+  "q": "Which statement about irate() is correct?",
+  "opts": [
+   "It computes the rate from the last two samples in the range, making it responsive but volatile",
+   "It computes an instantaneous rate without needing a range vector",
+   "It is the recommended function for alerting rules",
+   "It ignores counter resets, unlike rate()"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "irate() uses only the final two samples, so it reacts fast and flaps. Use rate() for alerting and for anything you will aggregate; both handle counter resets.",
+  "ref": "content/notes/03-promql.md"
+ },
+ {
+  "id": "promql-09",
+  "domain": "promql",
+  "type": "single",
+  "q": "With a scrape_interval of 30s, why does rate(http_requests_total[30s]) usually return no data?",
+  "opts": [
+   "The range contains at most one sample, and rate() needs at least two",
+   "30s is below the minimum range Prometheus accepts",
+   "The staleness lookback of 5 minutes overrides shorter ranges",
+   "rate() rounds ranges up to the nearest minute"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "rate() needs at least two samples to compute a difference. A practical rule is to make the range at least four times the scrape interval so a single missed scrape does not empty the window.",
+  "ref": "content/notes/03-promql.md"
+ },
+ {
+  "id": "promql-10",
+  "domain": "promql",
+  "type": "single",
+  "q": "In an expression using * on (instance) group_left (version), what does group_left indicate?",
+  "opts": [
+   "The left-hand side may have multiple series matching each right-hand series",
+   "The result keeps only the left-hand side's labels and drops the value",
+   "Labels are copied from the left side onto the right side",
+   "The join is evaluated from left to right"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "The modifier names the many side: group_left means many on the left, one on the right. The labels listed in parentheses are copied from the one side onto the result.",
+  "ref": "content/notes/03-promql.md"
+ },
+ {
+  "id": "promql-11",
+  "domain": "promql",
+  "type": "single",
+  "q": "The expression rate(errors_total[5m]) / rate(requests_total[5m]) returns no data, even though both metrics exist. What is the most likely cause?",
+  "opts": [
+   "The two sides have different label sets, so one-to-one matching finds no pairs",
+   "You cannot divide two range vectors",
+   "One of the metrics is a gauge",
+   "The division operator requires the bool modifier"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Binary operators match on all labels by default and silently drop series with no counterpart. Restrict the match with on(...) or ignoring(...), or aggregate both sides first.",
+  "ref": "content/notes/03-promql.md"
+ },
+ {
+  "id": "promql-12",
+  "domain": "promql",
+  "type": "single",
+  "q": "A target has been removed from service discovery entirely. Which expression can still alert on its disappearance?",
+  "opts": [
+   "absent(up{job=\"api\"})",
+   "up{job=\"api\"} == 0",
+   "count(up{job=\"api\"}) == 0",
+   "changes(up{job=\"api\"}[5m]) > 0"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "up == 0 cannot fire when there is no series to evaluate. absent() returns 1 precisely when its selector matches nothing, which is the idiomatic vanished-target alert.",
+  "ref": "content/notes/03-promql.md"
+ },
+ {
+  "id": "promql-13",
+  "domain": "promql",
+  "type": "single",
+  "q": "When is the bool modifier required in a comparison?",
+  "opts": [
+   "When comparing two scalars, or when you want 1/0 instead of filtered series",
+   "When comparing a counter to a gauge",
+   "When the comparison appears inside an alerting rule",
+   "When either side is the result of an aggregation"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Comparisons filter by default, returning only matching series. bool turns the comparison into a 1-or-0 result for every series, and it is mandatory when both operands are scalars.",
+  "ref": "content/notes/03-promql.md"
+ },
+ {
+  "id": "promql-14",
+  "domain": "promql",
+  "type": "single",
+  "q": "What does max_over_time(rate(http_requests_total[5m])[1h:1m]) compute?",
+  "opts": [
+   "The highest 5-minute rate observed, sampling every minute over the past hour",
+   "The maximum request count in the last hour",
+   "The rate over the last hour with 1-minute resolution",
+   "Nothing — you cannot nest a range vector inside a range vector"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "This is a subquery: the inner expression is evaluated every 1m over a 1h window, producing a range vector that max_over_time then reduces. Subqueries are expensive — prefer a recording rule in production.",
+  "ref": "content/notes/03-promql.md"
+ },
+ {
+  "id": "promql-15",
+  "domain": "promql",
+  "type": "single",
+  "q": "Which function extrapolates a gauge forward to predict when it will cross a threshold?",
+  "opts": [
+   "predict_linear",
+   "deriv",
+   "delta",
+   "holt_winters_forecast"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "predict_linear(v[1h], 4*3600) fits a least-squares line over the last hour and extrapolates four hours ahead — the standard disk-will-fill alert. deriv gives the current slope; delta gives the difference across the window.",
+  "ref": "content/notes/03-promql.md"
+ },
+ {
+  "id": "promql-16",
+  "domain": "promql",
+  "type": "single",
+  "q": "What does topk(5, http_requests_total) return?",
+  "opts": [
+   "The five series with the highest values, retaining their labels",
+   "A single scalar equal to the fifth-largest value",
+   "The five most recently updated series",
+   "A range vector containing the top five samples"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "topk and bottomk are aggregation operators that return series, not numbers, and they keep the original labels. This is what makes them useful in tables and top-N panels.",
+  "ref": "content/notes/03-promql.md"
+ },
+ {
+  "id": "promql-17",
+  "domain": "promql",
+  "type": "single",
+  "q": "What is the difference between avg(node_load1) and avg_over_time(node_load1[5m])?",
+  "opts": [
+   "The first averages across series at one instant; the second averages one series across time",
+   "They are equivalent, but the second is more efficient",
+   "The first works on gauges only; the second works on counters only",
+   "The first returns a range vector; the second returns an instant vector"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "They average along different axes. avg() collapses series; avg_over_time() smooths each series over a window and keeps them separate. They can be combined: avg(avg_over_time(x[5m])).",
+  "ref": "content/notes/03-promql.md"
+ },
+ {
+  "id": "promql-18",
+  "domain": "promql",
+  "type": "single",
+  "q": "Which expression correctly returns the value of a counter as it was one hour ago?",
+  "opts": [
+   "http_requests_total offset 1h",
+   "offset 1h http_requests_total",
+   "http_requests_total[1h]",
+   "http_requests_total @ 1h"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "The offset modifier follows the selector. x[1h] is a range vector, not a past value, and the @ modifier takes an absolute Unix timestamp rather than a duration.",
+  "ref": "content/notes/03-promql.md"
+ },
+ {
+  "id": "promql-19",
+  "domain": "promql",
+  "type": "single",
+  "q": "Which expression gives per-instance CPU utilisation as a percentage using node_exporter metrics?",
+  "opts": [
+   "100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+   "100 - (sum by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+   "avg by (instance) (node_cpu_seconds_total{mode!=\"idle\"}) * 100",
+   "rate(node_cpu_seconds_total{mode=\"user\"}[5m]) * 100"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "node_cpu_seconds_total counts seconds per mode per core. rate() converts it to a 0–1 utilisation fraction per core; avg by (instance) collapses the cores. Using sum would multiply the result by the core count.",
+  "ref": "content/notes/03-promql.md"
+ },
+ {
+  "id": "promql-20",
+  "domain": "promql",
+  "type": "single",
+  "q": "Which statement about histogram buckets is correct?",
+  "opts": [
+   "Buckets are cumulative, and the +Inf bucket always equals the _count series",
+   "Buckets are exclusive, and their values must be summed to get the total",
+   "The le label holds the lower bound of each bucket",
+   "The +Inf bucket is optional and usually omitted"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Prometheus histogram buckets are cumulative: le=\"0.5\" counts every observation less than or equal to 0.5s. The mandatory +Inf bucket counts everything and therefore equals _count.",
+  "ref": "content/notes/03-promql.md"
+ },
+ {
+  "id": "promql-21",
+  "domain": "promql",
+  "type": "single",
+  "q": "What does label_replace(up, \"host\", \"$1\", \"instance\", \"([^:]+):.*\") do?",
+  "opts": [
+   "Creates a host label containing the instance value with the port stripped",
+   "Renames the instance label to host",
+   "Replaces the value of instance with the value of host",
+   "Filters series whose instance label matches the regex"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "The argument order is vector, destination label, replacement, source label, regex. The original instance label is left untouched — a new host label is added alongside it.",
+  "ref": "content/notes/03-promql.md"
+ },
+ {
+  "id": "promql-22",
+  "domain": "promql",
+  "type": "single",
+  "q": "Which expression correctly computes the fraction of requests that failed?",
+  "opts": [
+   "sum(rate(http_requests_total{status=~\"5..\"}[5m])) / sum(rate(http_requests_total[5m]))",
+   "rate(http_requests_total{status=~\"5..\"}[5m]) / rate(http_requests_total[5m])",
+   "sum(rate(http_requests_total{status=~\"5..\"}[5m]) / rate(http_requests_total[5m]))",
+   "sum(http_requests_total{status=~\"5..\"}) / sum(http_requests_total)"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Aggregating both sides first collapses them to a single label-free series, so the division matches. Without the outer sums the label sets differ (one side is pinned to 5xx) and the result is empty.",
+  "ref": "content/notes/03-promql.md"
+ },
+ {
+  "id": "instr-01",
+  "domain": "instr",
+  "type": "single",
+  "q": "Which two comment lines carry meaning in the Prometheus text exposition format?",
+  "opts": [
+   "# HELP and # TYPE",
+   "# NAME and # UNIT",
+   "# METRIC and # LABEL",
+   "# DESC and # KIND"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "# HELP carries the description and # TYPE declares counter, gauge, histogram, summary or untyped. Any other line beginning with # is an ordinary comment.",
+  "ref": "content/notes/04-instrumentation-exporters.md"
+ },
+ {
+  "id": "instr-02",
+  "domain": "instr",
+  "type": "single",
+  "q": "Following Prometheus naming conventions, which metric name is correct for a request latency metric?",
+  "opts": [
+   "http_request_duration_seconds",
+   "http_request_duration_ms",
+   "httpRequestDuration",
+   "http:request:duration"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Use snake_case, base units (seconds, not milliseconds) and a unit suffix. Colons are reserved for recording rules and must never appear in a directly exposed metric name.",
+  "ref": "content/notes/04-instrumentation-exporters.md"
+ },
+ {
+  "id": "instr-03",
+  "domain": "instr",
+  "type": "single",
+  "q": "What does the _total suffix conventionally indicate?",
+  "opts": [
+   "The metric is a counter",
+   "The metric is a sum across all labels",
+   "The metric is a gauge holding a running total",
+   "The metric is aggregated by a recording rule"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "_total marks a counter. In OpenMetrics the suffix is added automatically, which is why the OpenMetrics exposition drops it from the exposed name.",
+  "ref": "content/notes/04-instrumentation-exporters.md"
+ },
+ {
+  "id": "instr-04",
+  "domain": "instr",
+  "type": "multi",
+  "q": "A histogram named app_latency_seconds is exposed. Which series does it produce? (Select all that apply.)",
+  "opts": [
+   "app_latency_seconds_bucket",
+   "app_latency_seconds_sum",
+   "app_latency_seconds_count",
+   "app_latency_seconds_quantile"
+  ],
+  "ans": [
+   0,
+   1,
+   2
+  ],
+  "why": "A histogram exposes _bucket (with an le label), _sum and _count. A quantile label belongs to summaries, not histograms.",
+  "ref": "content/notes/04-instrumentation-exporters.md"
+ },
+ {
+  "id": "instr-05",
+  "domain": "instr",
+  "type": "single",
+  "q": "Why can a summary's quantile series not be aggregated across instances?",
+  "opts": [
+   "Quantiles are computed inside each client, and averaging quantiles is mathematically invalid",
+   "Summaries are not scraped by Prometheus",
+   "The quantile label is dropped during storage",
+   "Summaries only report data for the last scrape interval"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Each client computes its own quantiles over a local sliding window. The average of ten p99 values is not the p99 of the combined population — this is the core histogram-versus-summary tradeoff.",
+  "ref": "content/notes/04-instrumentation-exporters.md"
+ },
+ {
+  "id": "instr-06",
+  "domain": "instr",
+  "type": "single",
+  "q": "Which exporter would you deploy to collect CPU, memory, disk and filesystem metrics from a Linux host?",
+  "opts": [
+   "node_exporter on port 9100",
+   "blackbox_exporter on port 9115",
+   "cAdvisor on port 8080",
+   "Pushgateway on port 9091"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "node_exporter exposes host-level metrics on 9100. Blackbox probes endpoints from the outside, cAdvisor reports container resource usage, and Pushgateway stores batch-job metrics.",
+  "ref": "content/notes/04-instrumentation-exporters.md"
+ },
+ {
+  "id": "instr-07",
+  "domain": "instr",
+  "type": "single",
+  "q": "In a blackbox_exporter scrape config, what is the purpose of relabeling __address__ into __param_target?",
+  "opts": [
+   "It passes the real target to the exporter as a ?target= URL parameter",
+   "It changes which port Prometheus connects to",
+   "It renames the instance label in the stored series",
+   "It selects which blackbox module to run"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Prometheus scrapes the exporter, not the target. The relabel chain moves the real target into the URL parameter, preserves it as the instance label, and then points __address__ at the exporter itself.",
+  "ref": "content/notes/04-instrumentation-exporters.md"
+ },
+ {
+  "id": "instr-08",
+  "domain": "instr",
+  "type": "single",
+  "q": "Which situation is the Pushgateway intended for?",
+  "opts": [
+   "A batch job whose lifetime is shorter than the scrape interval",
+   "An application behind a firewall that Prometheus cannot reach",
+   "Reducing the load on a Prometheus server with many targets",
+   "Collecting metrics from applications written in unsupported languages"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "The Pushgateway exists for service-level batch jobs that may die before being scraped. It is explicitly not a general-purpose push endpoint or a firewall workaround.",
+  "ref": "content/notes/04-instrumentation-exporters.md"
+ },
+ {
+  "id": "instr-09",
+  "domain": "instr",
+  "type": "multi",
+  "q": "Which of the following are genuine drawbacks of using the Pushgateway? (Select all that apply.)",
+  "opts": [
+   "Pushed metrics persist until they are explicitly deleted",
+   "It becomes a single point of failure",
+   "You lose per-instance up monitoring for the pushing jobs",
+   "It cannot store histogram metrics"
+  ],
+  "ans": [
+   0,
+   1,
+   2
+  ],
+  "why": "All three are real caveats: stale metrics linger forever, the gateway is a bottleneck and SPOF, and its own up says nothing about whether your job ran. It stores any metric type just fine.",
+  "ref": "content/notes/04-instrumentation-exporters.md"
+ },
+ {
+  "id": "instr-10",
+  "domain": "instr",
+  "type": "single",
+  "q": "Why is honor_labels: true normally set on the Pushgateway scrape config?",
+  "opts": [
+   "So the job and instance labels set by the pushing client are not overwritten by Prometheus",
+   "So Prometheus trusts the timestamps supplied by the client",
+   "So metrics are deleted after the first successful scrape",
+   "So the exporter is scraped more frequently than other targets"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "By default Prometheus overwrites conflicting labels with its own job and instance. honor_labels: true reverses that precedence, which is what preserves the identity of the pushing job.",
+  "ref": "content/notes/04-instrumentation-exporters.md"
+ },
+ {
+  "id": "instr-11",
+  "domain": "instr",
+  "type": "single",
+  "q": "You need to know that a Deployment expects three replicas but only two are ready. Which component provides this?",
+  "opts": [
+   "kube-state-metrics",
+   "cAdvisor",
+   "node_exporter",
+   "The Kubernetes service discovery role deployment"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "kube-state-metrics exposes Kubernetes object state — desired versus ready replicas, pod phase, and so on. cAdvisor reports container resource usage, and there is no deployment SD role.",
+  "ref": "content/notes/04-instrumentation-exporters.md"
+ },
+ {
+  "id": "instr-12",
+  "domain": "instr",
+  "type": "multi",
+  "q": "Which of the following does OpenMetrics add on top of the classic Prometheus text format? (Select all that apply.)",
+  "opts": [
+   "A mandatory # EOF terminator",
+   "Exemplars linking samples to trace IDs",
+   "Support for native (exponential) histograms",
+   "Encrypted transport for the metrics endpoint"
+  ],
+  "ans": [
+   0,
+   1,
+   2
+  ],
+  "why": "OpenMetrics standardises the format and adds # EOF, exemplars and native histogram support. Transport security is a separate concern handled by TLS.",
+  "ref": "content/notes/04-instrumentation-exporters.md"
+ },
+ {
+  "id": "instr-13",
+  "domain": "instr",
+  "type": "single",
+  "q": "A batch job runs on a host that already runs node_exporter. Which approach avoids the Pushgateway entirely?",
+  "opts": [
+   "Write the metrics to a file collected by node_exporter's textfile collector",
+   "Increase the job's runtime so it survives a scrape interval",
+   "Expose the metrics on a random port and add it to static_configs",
+   "Have the job write directly into the Prometheus TSDB"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "The textfile collector reads .prom files from a directory and exposes their contents through node_exporter. It keeps the pull model and the host's own up signal intact.",
+  "ref": "content/notes/04-instrumentation-exporters.md"
+ },
+ {
+  "id": "alert-01",
+  "domain": "alert",
+  "type": "single",
+  "q": "What are the three states of a Prometheus alerting rule?",
+  "opts": [
+   "inactive, pending, firing",
+   "ok, warning, critical",
+   "waiting, active, resolved",
+   "silent, grouped, notified"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "inactive means the expression returns nothing; pending means it is true but the for duration has not elapsed; firing means it has been true for at least for.",
+  "ref": "content/notes/05-alerting-dashboarding.md"
+ },
+ {
+  "id": "alert-02",
+  "domain": "alert",
+  "type": "single",
+  "q": "Which alert states are sent to Alertmanager?",
+  "opts": [
+   "Only firing",
+   "Both pending and firing",
+   "All three states",
+   "Only alerts whose for duration is zero"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Pending alerts stay inside Prometheus. Only firing alerts are pushed to Alertmanager, which is why a long for delays notification but not evaluation.",
+  "ref": "content/notes/05-alerting-dashboarding.md"
+ },
+ {
+  "id": "alert-03",
+  "domain": "alert",
+  "type": "single",
+  "q": "An alerting rule has for: 10m. What does this mean?",
+  "opts": [
+   "The expression must evaluate as true continuously for 10 minutes before the alert fires",
+   "The alert will re-notify every 10 minutes while it is firing",
+   "The alert is evaluated once every 10 minutes",
+   "The alert is automatically resolved 10 minutes after it stops matching"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "for filters out flapping. The rule is still evaluated on every evaluation_interval; the alert simply stays pending until the condition has held for the whole duration.",
+  "ref": "content/notes/05-alerting-dashboarding.md"
+ },
+ {
+  "id": "alert-04",
+  "domain": "alert",
+  "type": "single",
+  "q": "In Alertmanager, what does group_wait control?",
+  "opts": [
+   "How long to wait before sending the first notification for a newly created group",
+   "How long to wait before re-sending an unchanged alert",
+   "How long to wait before sending an update to a group that has already notified",
+   "How long an alert stays in the pending state"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "group_wait (default 30s) buffers a brand-new group so related alerts arrive together. group_interval covers updates to an existing group; repeat_interval covers re-notifying about an unchanged alert.",
+  "ref": "content/notes/05-alerting-dashboarding.md"
+ },
+ {
+  "id": "alert-05",
+  "domain": "alert",
+  "type": "single",
+  "q": "Which Alertmanager parameter controls how often you are re-notified about an alert that is still firing and unchanged?",
+  "opts": [
+   "repeat_interval",
+   "group_interval",
+   "group_wait",
+   "resolve_timeout"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "repeat_interval (commonly 4h) is the nag timer. group_interval is the minimum gap before an update about a changed group, and resolve_timeout governs when an alert without an explicit end time is considered resolved.",
+  "ref": "content/notes/05-alerting-dashboarding.md"
+ },
+ {
+  "id": "alert-06",
+  "domain": "alert",
+  "type": "single",
+  "q": "What does an inhibit_rule do?",
+  "opts": [
+   "Suppresses one set of alerts while another, more serious alert is firing",
+   "Prevents an alert from being evaluated by Prometheus",
+   "Silences alerts during a scheduled maintenance window",
+   "Delays notifications until a group has stabilised"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Inhibition mutes target alerts while a source alert fires, and the equal: labels restrict it to matching instances. Scheduled maintenance is handled by silences or mute_time_intervals.",
+  "ref": "content/notes/05-alerting-dashboarding.md"
+ },
+ {
+  "id": "alert-07",
+  "domain": "alert",
+  "type": "single",
+  "q": "Which of the following is a manual action taken by an operator rather than an automatic Alertmanager behaviour?",
+  "opts": [
+   "Creating a silence",
+   "Grouping",
+   "Inhibition",
+   "Deduplication"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Grouping, inhibition and deduplication are configured once and then applied automatically. A silence is created by a person, for a bounded time window, usually via the UI or amtool.",
+  "ref": "content/notes/05-alerting-dashboarding.md"
+ },
+ {
+  "id": "alert-08",
+  "domain": "alert",
+  "type": "single",
+  "q": "A critical alert must reach both the database team's receiver and the pager. What makes this possible in the routing tree?",
+  "opts": [
+   "Setting continue: true on the first matching child route",
+   "Listing two receivers in the route's receiver field",
+   "Adding both receivers to group_by",
+   "Creating an inhibit rule between the two receivers"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Routing is depth-first and stops at the first matching child by default. continue: true lets evaluation carry on to sibling routes, so one alert can reach several receivers.",
+  "ref": "content/notes/05-alerting-dashboarding.md"
+ },
+ {
+  "id": "alert-09",
+  "domain": "alert",
+  "type": "single",
+  "q": "Which recording rule name follows the conventional format?",
+  "opts": [
+   "job:http_requests:rate5m",
+   "http_requests_rate5m_by_job",
+   "rate5m_http_requests",
+   "job_http_requests_rate5m"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "The convention is level:metric:operations. The colons are what mark a series as rule-generated, which is also why colons are forbidden in directly exposed metric names.",
+  "ref": "content/notes/05-alerting-dashboarding.md"
+ },
+ {
+  "id": "alert-10",
+  "domain": "alert",
+  "type": "single",
+  "q": "Rule A produces a series that rule B consumes. What must be true for this to work reliably?",
+  "opts": [
+   "They must be in the same rule group, because rules within a group evaluate sequentially",
+   "They must be in different groups so they can evaluate in parallel",
+   "Rule A must have a shorter interval than rule B",
+   "Rule B must use the offset modifier to read rule A's output"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Rules within a group run in order, so a later rule can safely use an earlier one's output. Separate groups run in parallel, giving no ordering guarantee.",
+  "ref": "content/notes/05-alerting-dashboarding.md"
+ },
+ {
+  "id": "alert-11",
+  "domain": "alert",
+  "type": "single",
+  "q": "What is the difference between labels and annotations on an alerting rule?",
+  "opts": [
+   "Labels identify and route the alert; annotations carry human-readable text and support templating",
+   "Labels are optional; annotations are required",
+   "Labels are templated; annotations are static",
+   "Labels appear in the UI; annotations are sent to Alertmanager"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Labels are part of the alert's identity and are what Alertmanager matches on when routing. Annotations hold summaries, descriptions and runbook links, and support Go templating such as {{ $labels.instance }} and {{ $value }}.",
+  "ref": "content/notes/05-alerting-dashboarding.md"
+ },
+ {
+  "id": "alert-12",
+  "domain": "alert",
+  "type": "single",
+  "q": "Which metric lets you query the state of Prometheus's own alerts?",
+  "opts": [
+   "ALERTS",
+   "prometheus_alerts_active",
+   "alertmanager_alerts",
+   "up{job=\"alertmanager\"}"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Prometheus exposes ALERTS{alertname, alertstate, ...} and ALERTS_FOR_STATE, so you can build dashboards and even alerts on your alerting itself.",
+  "ref": "content/notes/05-alerting-dashboarding.md"
+ },
+ {
+  "id": "alert-13",
+  "domain": "alert",
+  "type": "multi",
+  "q": "Which commands validate configuration before you reload? (Select all that apply.)",
+  "opts": [
+   "promtool check rules",
+   "promtool check config",
+   "amtool check-config",
+   "promtool reload"
+  ],
+  "ans": [
+   0,
+   1,
+   2
+  ],
+  "why": "promtool validates Prometheus configuration and rule files (and can unit-test rules with promtool test rules); amtool check-config validates Alertmanager. There is no promtool reload subcommand.",
+  "ref": "content/notes/05-alerting-dashboarding.md"
+ },
+ {
+  "id": "alert-14",
+  "domain": "alert",
+  "type": "single",
+  "q": "In a Grafana panel querying Prometheus, why is $__rate_interval preferred over a hard-coded range like [5m]?",
+  "opts": [
+   "It adapts to the panel's zoom level and the datasource's scrape interval, avoiding windows with too few samples",
+   "It is evaluated by Prometheus rather than Grafana, so it is faster",
+   "It automatically converts counters into gauges",
+   "It enables caching of the query result"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "$__rate_interval is computed from the step size and the configured scrape interval, guaranteeing at least the samples rate() needs at any zoom level. A fixed range breaks when the panel is zoomed out.",
+  "ref": "content/notes/05-alerting-dashboarding.md"
+ },
+ {
+  "id": "obs-15",
+  "domain": "obs",
+  "type": "multi",
+  "q": "Which identifiers must a span carry so that a tracing backend can rebuild the call tree? (Select all that apply.)",
+  "opts": [
+   "A trace ID shared by every span in the request",
+   "Its own span ID",
+   "The parent span ID",
+   "The Prometheus target's instance label"
+  ],
+  "ans": [
+   0,
+   1,
+   2
+  ],
+  "why": "Trace ID groups the spans, span ID identifies one, and parent span ID establishes the hierarchy. The root span is the one with no parent. Prometheus labels have nothing to do with it.",
+  "ref": "content/notes/01-observability-concepts.md"
+ },
+ {
+  "id": "obs-16",
+  "domain": "obs",
+  "type": "single",
+  "q": "What is context propagation in distributed tracing?",
+  "opts": [
+   "Passing the trace and span IDs between services, standardised by W3C in the traceparent header",
+   "Replicating trace data between tracing backends",
+   "Copying span attributes onto their child spans",
+   "Sending traces to Prometheus as exemplars"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Without propagation you get disconnected spans rather than a trace. The W3C traceparent header is the standard carrier.",
+  "ref": "content/notes/01-observability-concepts.md"
+ },
+ {
+  "id": "obs-17",
+  "domain": "obs",
+  "type": "single",
+  "q": "Which sampling strategy allows you to keep every slow or failed trace while discarding successful ones?",
+  "opts": [
+   "Tail-based sampling, because the decision is made after the request completes",
+   "Head-based sampling, because the decision is made up front",
+   "Probabilistic sampling at a fixed 1%",
+   "Neither; all traces must be kept to guarantee this"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Head-based sampling decides at the start, so it cannot know the outcome. Tail-based decides afterwards and can retain the interesting traces, at the cost of buffering them until the request finishes.",
+  "ref": "content/notes/01-observability-concepts.md"
+ },
+ {
+  "id": "obs-18",
+  "domain": "obs",
+  "type": "single",
+  "q": "What is an exemplar?",
+  "opts": [
+   "A trace ID attached to a metric sample, letting you jump from a latency spike to one causing request",
+   "A representative time series chosen to stand in for a whole job",
+   "A sample kept at full resolution while the rest are downsampled",
+   "An example alerting rule shipped with Prometheus"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Exemplars are an OpenMetrics feature. They are the seam between the metric that detected a problem and the trace that explains it.",
+  "ref": "content/notes/01-observability-concepts.md"
+ },
+ {
+  "id": "obs-19",
+  "domain": "obs",
+  "type": "single",
+  "q": "Why are logs a poor substrate for always-on alerting at scale?",
+  "opts": [
+   "Their cost grows with event volume, and search slows down exactly when an incident needs it fastest",
+   "They cannot record error conditions",
+   "They have no timestamps",
+   "They cannot be aggregated at all"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "A metric is a fixed number of series regardless of traffic; a log line is written per event. Metrics detect, logs diagnose, traces locate.",
+  "ref": "content/notes/01-observability-concepts.md"
+ },
+ {
+  "id": "fund-17",
+  "domain": "fund",
+  "type": "single",
+  "q": "Your finance team wants to bill customers from a Prometheus counter of API calls. What is the correct objection?",
+  "opts": [
+   "Values are sampled and rate/increase extrapolate, so counts are approximate by design",
+   "Counters reset on restart and Prometheus cannot detect that",
+   "Prometheus cannot store counters for more than 15 days under any configuration",
+   "There is no way to query a counter per customer"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Prometheus is built for alerting and trend analysis, where approximation is fine. Extrapolation means increase() can legitimately return 4.6 for four whole events. Billing needs an event store, not a metrics store.",
+  "ref": "content/notes/02-prometheus-fundamentals.md"
+ },
+ {
+  "id": "fund-18",
+  "domain": "fund",
+  "type": "single",
+  "q": "What primarily determines a Prometheus server's memory usage?",
+  "opts": [
+   "The number of active time series",
+   "The total number of samples on disk",
+   "The retention period",
+   "The number of alerting rules"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Memory scales with active series, which is why one unbounded label can cost more than years of traffic growth. Retention and sample volume drive disk, not memory.",
+  "ref": "content/notes/02-prometheus-fundamentals.md"
+ },
+ {
+  "id": "fund-19",
+  "domain": "fund",
+  "type": "multi",
+  "q": "Which of the following are genuine limitations of a stock Prometheus server? (Select all that apply.)",
+  "opts": [
+   "Local storage is neither replicated nor clustered",
+   "There is no built-in multi-tenancy",
+   "A missed scrape is a gap, not a retry",
+   "It cannot evaluate more than one alerting rule group at a time"
+  ],
+  "ans": [
+   0,
+   1,
+   2
+  ],
+  "why": "The first three are real. Rule groups actually evaluate in parallel with one another; only rules within a single group are sequential.",
+  "ref": "content/notes/02-prometheus-fundamentals.md"
+ },
+ {
+  "id": "promql-23",
+  "domain": "promql",
+  "type": "single",
+  "q": "What is the difference between time() and timestamp(v)?",
+  "opts": [
+   "time() returns the query's evaluation time; timestamp(v) returns when each sample in v was recorded",
+   "They are equivalent, but timestamp() accepts an argument",
+   "time() returns milliseconds and timestamp() returns seconds",
+   "time() works only inside recording rules"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Both return Unix seconds. The distinction is whose time: the query's, or each sample's. Confusing them is a classic trap.",
+  "ref": "content/notes/03-promql.md"
+ },
+ {
+  "id": "promql-24",
+  "domain": "promql",
+  "type": "single",
+  "q": "A nightly job exposes backup_last_success_timestamp_seconds. Which expression alerts that it has not succeeded in 24 hours?",
+  "opts": [
+   "time() - backup_last_success_timestamp_seconds > 86400",
+   "increase(backup_last_success_timestamp_seconds[24h]) == 0",
+   "absent(backup_last_success_timestamp_seconds[24h])",
+   "rate(backup_last_success_timestamp_seconds[24h]) < 1"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Comparing the stored timestamp against time() measures staleness, and the gap grows without bound until someone fixes it. This is how you alert that something did *not* happen, which a counter cannot express because nothing increments on failure.",
+  "ref": "content/notes/03-promql.md"
+ },
+ {
+  "id": "promql-25",
+  "domain": "promql",
+  "type": "single",
+  "q": "Which expression finds TLS certificates expiring within the next seven days?",
+  "opts": [
+   "probe_ssl_earliest_cert_expiry - time() < 7 * 86400",
+   "time() - probe_ssl_earliest_cert_expiry < 7 * 86400",
+   "probe_ssl_earliest_cert_expiry < 7 * 86400",
+   "increase(probe_ssl_earliest_cert_expiry[7d]) < 0"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "The metric holds the expiry as a Unix timestamp, so subtracting time() gives the seconds remaining. Reversing the operands gives how long ago it expired, which is a different alert.",
+  "ref": "content/notes/03-promql.md"
+ },
+ {
+  "id": "promql-26",
+  "domain": "promql",
+  "type": "single",
+  "q": "What is wrong with the expression hour() >= 8 < 18 ?",
+  "opts": [
+   "PromQL has no chained comparison; it needs two clauses joined with and",
+   "hour() cannot be compared to a scalar",
+   "It needs the bool modifier to compare at all",
+   "Nothing; it correctly matches business hours"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Write it as two comparisons combined with `and`. Also remember hour() is UTC, so Alertmanager's mute_time_intervals is usually the better tool for business-hours logic.",
+  "ref": "content/notes/03-promql.md"
+ },
+ {
+  "id": "alert-15",
+  "domain": "alert",
+  "type": "single",
+  "q": "An alert fires whenever a pod restarts. The documented response is 'wait for it to come back'. What should happen to this alert?",
+  "opts": [
+   "It should not page, because it is not actionable",
+   "It should page, because restarts indicate instability",
+   "It should page but with a longer for duration",
+   "It should be routed to a second receiver as a warning page"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "A page must be urgent, actionable and need human judgement. If the responder can only watch, it belongs on a dashboard; if the fix is mechanical, automate it. Everything else spends attention that a real incident will need.",
+  "ref": "content/notes/05-alerting-dashboarding.md"
+ },
+ {
+  "id": "alert-16",
+  "domain": "alert",
+  "type": "single",
+  "q": "Why does symptom-based alerting scale better than cause-based alerting?",
+  "opts": [
+   "The number of ways users experience failure stays small, while the number of possible causes grows with the architecture",
+   "Symptoms are cheaper to compute in PromQL",
+   "Cause-based alerts cannot use the for clause",
+   "Symptom alerts do not require Alertmanager"
+  ],
+  "ans": [
+   0
+  ],
+  "why": "Add a service and you add many new failure causes, but users still only see slow, wrong or unavailable. That is why 'users are getting 500s' pages and 'a node has high CPU' does not.",
+  "ref": "content/notes/05-alerting-dashboarding.md"
+ },
+ {
+  "domain": "obs",
+  "type": "single",
+  "q": "A nightly batch job runs for 40 seconds, then exits. How should it expose Prometheus metrics?",
+  "opts": [
+   "Add a scrape job with scrape_interval: 15s on the job’s /metrics",
+   "Push metrics to the Pushgateway when the job finishes",
+   "Open a gRPC stream to Prometheus (remote_write from the job)",
+   "Write samples into Prometheus’s TSDB directory"
+  ],
+  "ans": [
+   1
+  ],
+  "why": "Pull cannot reliably scrape a process that may be gone between intervals. Pushgateway exists for short-lived jobs. Long-running services should still be pulled.",
+  "ref": "content/notes/01-observability-concepts.md",
+  "id": "obs-20"
+ },
+ {
+  "domain": "obs",
+  "type": "single",
+  "q": "An SLO says 97% of uploads finish within 30 seconds. Which histogram bucket list is appropriate?",
+  "opts": [
+   "1, 5, 10, 60, 120",
+   "10, 20, 40, 80",
+   "10, 25, 27, 30, 32, 35, 40, 50",
+   "0.1, 0.25, 0.5, 1, 2.5, 5"
+  ],
+  "ans": [
+   2
+  ],
+  "why": "histogram_quantile interpolates between buckets. You need a bucket boundary at the SLO threshold (30s), plus nearby buckets so the estimate is not a wild guess.",
+  "ref": "content/notes/01-observability-concepts.md",
+  "id": "obs-21"
+ },
+ {
+  "domain": "fund",
+  "type": "single",
+  "q": "You must not scrape targets with label team=frontend. Where does the drop belong?",
+  "opts": [
+   "metric_relabel_configs with action: drop",
+   "relabel_configs with source_labels: [team], regex: frontend, action: drop",
+   "Alertmanager inhibit_rules",
+   "recording rules named drop_frontend"
+  ],
+  "ans": [
+   1
+  ],
+  "why": "relabel_configs runs before the scrape and can drop the target. metric_relabel_configs runs after samples are fetched.",
+  "ref": "content/notes/02-prometheus-fundamentals.md",
+  "id": "fund-20"
+ },
+ {
+  "domain": "fund",
+  "type": "single",
+  "q": "Which statement is a real Prometheus limitation?",
+  "opts": [
+   "It cannot scrape more than 10 targets",
+   "It is not a clustered, durable long-term store; use remote_write for that",
+   "It cannot use labels at all",
+   "It only supports the Graphite wire protocol"
+  ],
+  "ans": [
+   1
+  ],
+  "why": "Local TSDB is single-node. Durability/HA/long retention is Thanos/Mimir/Cortex via remote_write. Cardinality, not target count, is the usual scaling cliff.",
+  "ref": "content/notes/02-prometheus-fundamentals.md",
+  "id": "fund-21"
+ },
+ {
+  "domain": "promql",
+  "type": "single",
+  "q": "Given node_cpu_temp_celsius{instance,cpu}, which query returns the average temperature per instance?",
+  "opts": [
+   "sum(node_cpu_temp_celsius)",
+   "avg_over_time(node_cpu_temp_celsius[5m])",
+   "avg by (instance) (node_cpu_temp_celsius)",
+   "rate(node_cpu_temp_celsius[5m])"
+  ],
+  "ans": [
+   2
+  ],
+  "why": "avg by (instance) collapses the cpu dimension and keeps instance. avg_over_time averages over time, not across CPUs. rate() is for counters.",
+  "ref": "content/notes/03-promql.md",
+  "id": "promql-27"
+ },
+ {
+  "domain": "promql",
+  "type": "single",
+  "q": "Which selector returns node_disk_read_bytes_total for job web or job node?",
+  "opts": [
+   "node_disk_read_bytes_total{job=\"web,node\"}",
+   "node_disk_read_bytes_total{job=~\"web|node\"}",
+   "node_disk_read_bytes_total{job!=\"app\"}",
+   "node_disk_read_bytes_total[job=web or node]"
+  ],
+  "ans": [
+   1
+  ],
+  "why": "=~ is regex match. | is OR inside the regex. Comma in an equality matcher is a literal, not a list.",
+  "ref": "content/notes/03-promql.md",
+  "id": "promql-28"
+ },
+ {
+  "domain": "promql",
+  "type": "single",
+  "q": "You want a smooth per-second request rate for graphs. Which function?",
+  "opts": [
+   "irate(http_requests_total[5m])",
+   "deriv(http_requests_total[5m])",
+   "rate(http_requests_total[5m])",
+   "delta(http_requests_total[5m])"
+  ],
+  "ans": [
+   2
+  ],
+  "why": "rate() averages over the whole window and handles counter resets. irate() uses the last two samples (spiky). deriv/delta are for gauges.",
+  "ref": "content/notes/03-promql.md",
+  "id": "promql-29"
+ },
+ {
+  "domain": "promql",
+  "type": "single",
+  "q": "Correct 99th percentile of request duration?",
+  "opts": [
+   "quantile(0.99, http_request_duration_seconds)",
+   "histogram_quantile(0.99, sum by (le) (rate(http_request_duration_seconds_bucket[5m])))",
+   "histogram_quantile(99, http_request_duration_seconds_count)",
+   "topk(0.99, http_request_duration_seconds_sum)"
+  ],
+  "ans": [
+   1
+  ],
+  "why": "Need the _bucket series, rate(), and sum by (le) so the le label survives. φ is 0–1, not 99.",
+  "ref": "content/notes/03-promql.md",
+  "id": "promql-30"
+ },
+ {
+  "domain": "promql",
+  "type": "single",
+  "q": "What does time() - timestamp(batch_job_last_success_timestamp_seconds) represent?",
+  "opts": [
+   "The job’s scrape duration",
+   "Seconds since that series last had a sample (staleness aside, ‘how old is success’)",
+   "The recording rule evaluation lag",
+   "Always 0 because time() equals the sample timestamp"
+  ],
+  "ans": [
+   1
+  ],
+  "why": "timestamp() is the sample’s timestamp. Subtracting from time() is the usual ‘freshness’ check for push/batch gauges.",
+  "ref": "content/notes/03-promql.md",
+  "id": "promql-31"
+ },
+ {
+  "domain": "instr",
+  "type": "single",
+  "q": "Which metric type should back a Grafana heatmap of request latency?",
+  "opts": [
+   "Summary",
+   "Gauge",
+   "Counter",
+   "Histogram"
+  ],
+  "ans": [
+   3
+  ],
+  "why": "Heatmaps use histogram buckets (le). Summaries compute quantiles on the client and cannot be merged into a heatmap the same way.",
+  "ref": "content/notes/04-instrumentation-exporters.md",
+  "id": "instr-14"
+ },
+ {
+  "domain": "instr",
+  "type": "single",
+  "q": "Current CPU temperature should be a:",
+  "opts": [
+   "Counter",
+   "Gauge",
+   "Histogram",
+   "Info"
+  ],
+  "ans": [
+   1
+  ],
+  "why": "Temperature goes up and down. Counters only increase.",
+  "ref": "content/notes/04-instrumentation-exporters.md",
+  "id": "instr-15"
+ },
+ {
+  "domain": "instr",
+  "type": "single",
+  "q": "Which metric name follows Prometheus conventions?",
+  "opts": [
+   "HttpRequests",
+   "http_request_duration_seconds",
+   "httpRequestDuration",
+   "shop.http.latency.ms"
+  ],
+  "ans": [
+   1
+  ],
+  "why": "snake_case, unit suffix (_seconds), not camelCase, not dotted Graphite style.",
+  "ref": "content/notes/04-instrumentation-exporters.md",
+  "id": "instr-16"
+ },
+ {
+  "domain": "instr",
+  "type": "single",
+  "q": "Node Exporter is best described as:",
+  "opts": [
+   "A tracing sidecar",
+   "A process that exposes hardware and OS metrics for *nix hosts",
+   "A drop-in replacement for Grafana",
+   "The component that sends PagerDuty pages"
+  ],
+  "ans": [
+   1
+  ],
+  "why": "It is the standard host exporter. Alertmanager pages; Grafana graphs.",
+  "ref": "content/notes/04-instrumentation-exporters.md",
+  "id": "instr-17"
+ },
+ {
+  "domain": "alert",
+  "type": "single",
+  "q": "Where should alerting rules be defined?",
+  "opts": [
+   "Inside scrape_configs",
+   "A separate rules file listed under rule_files",
+   "grafana.ini",
+   "The Alertmanager receivers block"
+  ],
+  "ans": [
+   1
+  ],
+  "why": "Prometheus evaluates alert *rules*. Alertmanager only routes already-firing alerts.",
+  "ref": "content/notes/05-alerting-dashboarding.md",
+  "id": "alert-17"
+ },
+ {
+  "domain": "alert",
+  "type": "single",
+  "q": "route.repeat_interval is 4h. An engineer ignores a firing alert. When does Alertmanager resend?",
+  "opts": [
+   "After group_wait",
+   "After 5 minutes",
+   "After 4 hours",
+   "Never"
+  ],
+  "ans": [
+   2
+  ],
+  "why": "repeat_interval is the nag timer when the group is still firing and nobody resolved it.",
+  "ref": "content/notes/05-alerting-dashboarding.md",
+  "id": "alert-18"
+ },
+ {
+  "domain": "alert",
+  "type": "single",
+  "q": "group_by: [env] under a frontend route. Alerts: (dev,dev,prod,prod,staging) all team=frontend. How many notifications?",
+  "opts": [
+   "1",
+   "2",
+   "3",
+   "5"
+  ],
+  "ans": [
+   2
+  ],
+  "why": "Grouping key is env, so one notification per unique env: dev, prod, staging → 3.",
+  "ref": "content/notes/05-alerting-dashboarding.md",
+  "id": "alert-19"
+ },
+ {
+  "domain": "alert",
+  "type": "single",
+  "q": "Which is NOT a valid way to reload Alertmanager configuration?",
+  "opts": [
+   "Send SIGHUP to the process",
+   "POST to /-/reload",
+   "Restart the container",
+   "Click Reload in the Alertmanager web UI"
+  ],
+  "ans": [
+   3
+  ],
+  "why": "There is no reload button in the UI. Lifecycle HTTP endpoint must be enabled (--web.enable-lifecycle).",
+  "ref": "content/notes/05-alerting-dashboarding.md",
+  "id": "alert-20"
+ },
+ {
+  "domain": "obs",
+  "type": "single",
+  "q": "Prometheus collecting metrics from targets is primarily a:",
+  "opts": [
+   "Push model",
+   "Pull model",
+   "Pub/sub model",
+   "Streaming Tail model"
+  ],
+  "ans": [
+   1
+  ],
+  "why": "Prometheus scrapes (pulls) /metrics. Push is the exception via Pushgateway or remote_write receivers.",
+  "ref": "content/notes/01-observability-concepts.md",
+  "id": "obs-22"
+ },
+ {
+  "domain": "fund",
+  "type": "single",
+  "q": "High-cardinality labels (user_id, email, request_id) are dangerous because they:",
+  "opts": [
+   "Break PromQL parsers",
+   "Create an unbounded number of time series and exhaust TSDB memory/disk",
+   "Are rejected by Alertmanager",
+   "Disable service discovery"
+  ],
+  "ans": [
+   1
+  ],
+  "why": "Each unique label set is a series. Unbounded labels are the classic Prometheus outage.",
+  "ref": "content/notes/02-prometheus-fundamentals.md",
+  "id": "fund-22"
+ },
+ {
+  "domain": "instr",
+  "type": "single",
+  "q": "You want a Grafana heatmap of request latency. Which metric type must back it?",
+  "opts": [
+   "Summary",
+   "Gauge",
+   "Info",
+   "Histogram"
+  ],
+  "ans": [
+   3
+  ],
+  "why": "Heatmaps use histogram _bucket series (le). Summaries compute quantiles on the client and cannot be merged into a heatmap.",
+  "ref": "content/notes/04-instrumentation-exporters.md",
+  "id": "instr-18"
+ },
+ {
+  "domain": "fund",
+  "type": "single",
+  "q": "Which local filesystem is recommended for Prometheus TSDB?",
+  "opts": [
+   "NFS",
+   "ext4 or XFS",
+   "CIFS/SMB",
+   "tmpfs only"
+  ],
+  "ans": [
+   1
+  ],
+  "why": "Prometheus needs POSIX local disk. NFS is a well-known source of corruption and latency. ext4/XFS are the documented choices.",
+  "ref": "content/notes/02-prometheus-fundamentals.md",
+  "id": "fund-23"
+ },
+ {
+  "domain": "instr",
+  "type": "single",
+  "q": "How do you typically monitor a network router with Prometheus?",
+  "opts": [
+   "SSH into the router and run node_exporter",
+   "Scrape the router’s /metrics with kubernetes_sd",
+   "Use the SNMP exporter",
+   "Push from the router to remote_write"
+  ],
+  "ans": [
+   2
+  ],
+  "why": "Network gear rarely speaks the Prometheus exposition format. snmp_exporter translates SNMP into /metrics that Prometheus pulls.",
+  "ref": "content/notes/04-instrumentation-exporters.md",
+  "id": "instr-19"
+ },
+ {
+  "domain": "promql",
+  "type": "single",
+  "q": "A scrape job was removed from config. Which query is 1?",
+  "opts": [
+   "up{job=\"gone\"} == 0",
+   "absent(up{job=\"gone\"})",
+   "up{job=\"gone\"} < 1",
+   "count(up{job=\"gone\"})"
+  ],
+  "ans": [
+   1
+  ],
+  "why": "If the job is gone there is no up series, so up==0 is empty. absent() returns 1 when the selector matches nothing.",
+  "ref": "content/notes/03-promql.md",
+  "id": "promql-32"
+ },
+ {
+  "domain": "promql",
+  "type": "single",
+  "q": "Which function is appropriate on a gauge such as temperature?",
+  "opts": [
+   "rate(app_cpu_temp_celsius[5m])",
+   "increase(app_cpu_temp_celsius[5m])",
+   "deriv(app_cpu_temp_celsius[5m])",
+   "irate(app_cpu_temp_celsius[5m])"
+  ],
+  "ans": [
+   2
+  ],
+  "why": "rate/irate/increase assume counters (and handle resets). deriv() (and delta) are for gauges.",
+  "ref": "content/notes/03-promql.md",
+  "id": "promql-33"
+ },
+ {
+  "domain": "fund",
+  "type": "single",
+  "q": "You already scraped a target and now want to drop go_.* series. Where?",
+  "opts": [
+   "relabel_configs action: drop",
+   "metric_relabel_configs on __name__",
+   "Alertmanager inhibit_rules",
+   "file_sd refresh_interval"
+  ],
+  "ans": [
+   1
+  ],
+  "why": "metric_relabel_configs runs on samples after the scrape. relabel_configs decides whether to scrape the target at all.",
+  "ref": "content/notes/02-prometheus-fundamentals.md",
+  "id": "fund-24"
+ },
+ {
+  "domain": "obs",
+  "type": "single",
+  "q": "Which signal belongs to Prometheus?",
+  "opts": [
+   "Distributed traces (spans)",
+   "Application log lines",
+   "Numeric time series (metrics)",
+   "Packet captures"
+  ],
+  "ans": [
+   2
+  ],
+  "why": "Prometheus is metrics. Logs go to Loki/ELK; traces to Jaeger/Tempo/OTel. PCA asks you to keep the pillars apart.",
+  "ref": "content/notes/01-observability-concepts.md",
+  "id": "obs-23"
+ },
+ {
+  "domain": "alert",
+  "type": "single",
+  "q": "In Alertmanager routing, continue: true means:",
+  "opts": [
+   "The alert is silenced after this route",
+   "Matching continues to later sibling routes after sending to this receiver",
+   "The alert waits for group_wait forever",
+   "Prometheus stops evaluating the rule"
+  ],
+  "ans": [
+   1
+  ],
+  "why": "Default is first-match wins (continue: false). continue: true lets one alert fan out to more than one receiver.",
+  "ref": "content/notes/05-alerting-dashboarding.md",
+  "id": "alert-21"
+ }
+]

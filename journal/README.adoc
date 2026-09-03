@@ -5,9 +5,9 @@
 Narrative documentation with screenshots, written in AsciiDoc and rendered to a
 single HTML file and a PDF.
 
-== Why this is separate from `docs/`
+== Why this is separate from `content/notes/`
 
-`docs/` is *reference*: what I need to know, written to be revised from, in
+`content/notes/` is *reference*: what I need to know, written to be revised from, in
 Markdown so it reads well on GitHub and in an editor.
 
 `journal/` is *narrative*: what I did, in order, with evidence. It uses AsciiDoc

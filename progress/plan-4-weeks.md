@@ -22,7 +22,7 @@ The gap between 54 and 45 is the buffer. It will get used.
  15 min   flashcards, starting with last session's misses   ← retrieval BEFORE input
 100 min   video, paused whenever something is reproducible
  60 min   lab + PromQL drills
- 45 min   write the docs/ section in my own words
+ 45 min   write the content/notes/ section in my own words
  20 min   journal entry and log
 ```
 
@@ -54,29 +54,29 @@ misallocate your time:
 
 **S1.** L1 + L2 Prometheus Fundamentals + L3 Installing (skim — the lab already
 runs; watch for what the instructor does differently).
-→ `docs/02` §2.1–2.3. Lab exercise 1: break a target, watch `up` go to 0.
+→ `content/notes/02` §2.1–2.3. Lab exercise 1: break a target, watch `up` go to 0.
 
 **S2.** L4 Observability Concepts.
-→ `docs/01` in full, including logs/events and tracing/spans. Drill 01.
+→ `content/notes/01` in full, including logs/events and tracing/spans. Drill 01.
 
 **S3.** L6 Monitoring Fundamentals.
-→ `docs/02` §2.4–2.8: service discovery, relabeling, TSDB, limitations.
+→ `content/notes/02` §2.4–2.8: service discovery, relabeling, TSDB, limitations.
 Lab exercises 2 and 3 — file_sd, and dropping a metric with
 `metric_relabel_configs`.
 
-**Checkpoint:** `docs/01` and `docs/02` have no `TODO` left, and the numbers in
+**Checkpoint:** `content/notes/01` and `content/notes/02` have no `TODO` left, and the numbers in
 the cheat sheet come back cold.
 
 ## Week 2 — PromQL, the 28% (Sep 10–16)
 
 **S4.** L5 Querying Prometheus + first half of L9.
-→ `docs/03` §3.1–3.2. Drills 01 and 02.
+→ `content/notes/03` §3.1–3.2. Drills 01 and 02.
 
 **S5.** Second half of L9.
-→ `docs/03` §3.3–3.4. Drill 03, including the `group_left` join.
+→ `content/notes/03` §3.3–3.4. Drill 03, including the `group_left` join.
 
 **S6.** **No new video.** Consolidation day.
-→ `docs/03` §3.5–3.8: histograms, subqueries, timestamp metrics. Drill 04.
+→ `content/notes/03` §3.5–3.8: histograms, subqueries, timestamp metrics. Drill 04.
 Then write all ten cheat-sheet queries into the expression browser from memory,
 with nothing open.
 
@@ -85,14 +85,14 @@ with nothing open.
 ## Week 3 — Instrumentation and alerting (Sep 17–23)
 
 **S7.** L10 Instrumenting Data.
-→ `docs/04`. Add a metric to `lab/apps/sample-app/app.py`, rebuild, query it.
+→ `content/notes/04`. Add a metric to `lab/apps/sample-app/app.py`, rebuild, query it.
 
 **S8.** L8 Alerting and Rules.
-→ `docs/05` §5.1–5.2. Write one recording rule and one alerting rule of your
+→ `content/notes/05` §5.1–5.2. Write one recording rule and one alerting rule of your
 own, then `promtool check rules`.
 
 **S9.** L7 Dashboarding + the Alertmanager portion of L8.
-→ `docs/05` §5.3–5.5. Lab exercises 5 and 6: a silence, and inhibition.
+→ `content/notes/05` §5.3–5.5. Lab exercises 5 and 6: a silence, and inhibition.
 
 **Checkpoint:** the alert state machine and the three Alertmanager timers,
 explained out loud without notes.
@@ -103,7 +103,7 @@ explained out loud without notes.
 Kubernetes matters here only as SD roles and kube-state-metrics vs cAdvisor.
 
 **S11.** **Mock #1**, full 90 minutes under exam conditions. Then review every
-wrong answer into `drills/mock-exams/`, and repair the weakest domain.
+wrong answer into `content/exam/`, and repair the weakest domain.
 
 **S12.** L13 Exam Prep and Final Quiz, then **Mock #2**. Finish here — no new
 material after this session.
@@ -128,7 +128,7 @@ a slice of S7 and S8. It is 28% of the paper; nothing else outranks it.
 ## Readiness bar
 
 Two consecutive mocks at **85%+**, no single domain below **75%**, and every
-Self-check in `docs/` answerable from memory. Below that, move the date rather
+Self-check in `content/notes/` answerable from memory. Below that, move the date rather
 than hope.
 
 ## Rules
@@ -137,4 +137,4 @@ than hope.
 - If a section's Self-check needs the page open, that section isn't done.
 - Falling behind: cut video, not lab. Cut week-4 breadth, not PromQL.
 - Ten minutes of flashcards on off days. Every off day.
-- `grep -rn TODO docs/` before every checkpoint.
+- `grep -rn TODO content/notes/` before every checkpoint.

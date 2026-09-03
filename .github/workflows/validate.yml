@@ -56,7 +56,7 @@ jobs:
       - name: Remaining TODOs in the notes
         run: |
           echo "Open TODOs (informational, does not fail the build):"
-          grep -rn "TODO" docs/ progress/ || echo "  none - notes are complete"
+          grep -rn "TODO" content/notes/ progress/ || echo "  none - notes are complete"
 
   journal:
     name: Lab journal
@@ -92,11 +92,11 @@ jobs:
           retention-days: 30
 
   study:
-    name: Study app
+    name: Web app
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: study
+        working-directory: web
     steps:
       - uses: actions/checkout@v4
 
@@ -104,7 +104,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: study/package-lock.json
+          cache-dependency-path: web/package-lock.json
 
       - run: npm ci
       - run: npm run build

@@ -17,7 +17,7 @@ This is the *narrative* half of the repository. The split is deliberate:
 
 [cols="1,3"]
 |===
-| `docs/` | What I need to know for the exam. Reference, written to be revised from.
+| `content/notes/` | What I need to know for the exam. Reference, written to be revised from.
 | `lab/`  | The runnable stack, plus a terse troubleshooting table for lookups.
 | `journal/` | What I actually did, in order, with evidence. Story, not reference.
 |===

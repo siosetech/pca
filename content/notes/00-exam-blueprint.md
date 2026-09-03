@@ -12,7 +12,7 @@
 | Retake | One free retake included with the exam purchase |
 
 > Verify the current question count and passing score in the
-> [Candidate Handbook](https://docs.linuxfoundation.org/tc-docs/certification/lf-handbook2)
+> [Candidate Handbook](https://docs.linuxfoundation.org/tc-content/notes/certification/lf-handbook2)
 > — these change and I should not trust a blog post for them.
 >
 > `> TODO` fill in after reading the handbook: questions = ___, pass mark = ___
