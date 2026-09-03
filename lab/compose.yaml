@@ -1,138 +1,147 @@
-# PCA lab stack — run with:  podman compose up -d
-#
-# Everything is fully-qualified (docker.io/...) because Podman does not assume
-# a default registry.
-#
-# > TODO: once the stack works, replace `:latest` with pinned versions
-# >       (`podman images --digests`) so the lab is reproducible.
-
 name: pca-lab
 
-services:
+# Run from this directory:
+#   podman compose up -d --build
+# Stop:
+#   podman compose down
 
-  # ── The Prometheus server itself ────────────────────────────────────────────
+networks:
+  pca:
+    name: pca-lab
+
+volumes:
+  prometheus-data:
+  grafana-data:
+  alertmanager-data:
+  pushgateway-data:
+
+services:
   prometheus:
-    image: docker.io/prom/prometheus:latest
+    image: docker.io/prom/prometheus:v2.55.1
     container_name: pca-prometheus
     command:
       - --config.file=/etc/prometheus/prometheus.yml
       - --storage.tsdb.path=/prometheus
-      - --storage.tsdb.retention.time=7d
-      - --web.enable-lifecycle          # allows POST /-/reload
-      - --web.enable-admin-api          # allows the delete-series API
-      - --log.level=info
-    ports:
-      - "9090:9090"
+      - --storage.tsdb.retention.time=15d
+      - --web.enable-lifecycle
+      - --web.enable-admin-api
+      - --web.console.libraries=/usr/share/prometheus/console_libraries
+      - --web.console.templates=/usr/share/prometheus/consoles
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./prometheus/rules:/etc/prometheus/rules:ro
-      - ./prometheus/targets:/etc/prometheus/targets:ro
-      - prom-data:/prometheus
+      - ./prometheus/file_sd:/etc/prometheus/file_sd:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    networks: [pca]
     restart: unless-stopped
+    depends_on:
+      - alertmanager
+      - sample-app
+      - node-exporter
+      - blackbox
+      - pushgateway
 
-  # ── Routes, groups and silences the alerts Prometheus fires ────────────────
   alertmanager:
-    image: docker.io/prom/alertmanager:latest
+    image: docker.io/prom/alertmanager:v0.27.0
     container_name: pca-alertmanager
     command:
       - --config.file=/etc/alertmanager/alertmanager.yml
       - --storage.path=/alertmanager
-    ports:
-      - "9093:9093"
+      - --web.enable-lifecycle
     volumes:
       - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
-      - am-data:/alertmanager
+      - alertmanager-data:/alertmanager
+    ports:
+      - "9093:9093"
+    networks: [pca]
     restart: unless-stopped
 
-  # ── Dashboards ─────────────────────────────────────────────────────────────
   grafana:
-    image: docker.io/grafana/grafana:latest
+    image: docker.io/grafana/grafana:11.5.2
     container_name: pca-grafana
     environment:
       GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: admin
-      GF_USERS_ALLOW_SIGN_UP: "false"
-      GF_AUTH_ANONYMOUS_ENABLED: "true"     # lab only — no login prompt
-      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
-    ports:
-      - "3000:3000"
+      GF_SECURITY_ADMIN_PASSWORD: pca
+      GF_USERS_DEFAULT_THEME: dark
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/pca-overview.json
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
       - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
       - grafana-data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    networks: [pca]
+    restart: unless-stopped
     depends_on:
       - prometheus
-    restart: unless-stopped
 
-  # ── Host metrics: CPU, memory, disk, network (of the Podman machine) ───────
   node-exporter:
-    image: docker.io/prom/node-exporter:latest
+    image: docker.io/prom/node-exporter:v1.8.2
     container_name: pca-node-exporter
+    pid: host
     command:
       - --path.procfs=/host/proc
       - --path.sysfs=/host/sys
-      - --path.rootfs=/host/root
+      - --path.rootfs=/rootfs
       - --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)
-    ports:
-      - "9100:9100"
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
-      - /:/host/root:ro
-    pid: host
+      - /:/rootfs:ro
+    ports:
+      - "9100:9100"
+    networks: [pca]
     restart: unless-stopped
 
-  # ── Black-box probing: HTTP / TCP / ICMP / DNS from the outside ────────────
   blackbox:
-    image: docker.io/prom/blackbox-exporter:latest
+    image: docker.io/prom/blackbox-exporter:v0.25.0
     container_name: pca-blackbox
     command:
-      - --config.file=/etc/blackbox/blackbox.yml
+      - --config.file=/etc/blackbox/config.yml
+    volumes:
+      - ./blackbox/config.yml:/etc/blackbox/config.yml:ro
     ports:
       - "9115:9115"
-    volumes:
-      - ./blackbox/blackbox.yml:/etc/blackbox/blackbox.yml:ro
+    networks: [pca]
     restart: unless-stopped
 
-  # ── Holds metrics from short-lived batch jobs ──────────────────────────────
   pushgateway:
-    image: docker.io/prom/pushgateway:latest
+    image: docker.io/prom/pushgateway:v1.10.0
     container_name: pca-pushgateway
+    command:
+      - --persistence.file=/data/pushgateway.db
+    volumes:
+      - pushgateway-data:/data
     ports:
       - "9091:9091"
+    networks: [pca]
     restart: unless-stopped
 
-  # ── A tiny instrumented app: counter, gauge, histogram, summary ────────────
   sample-app:
     build:
-      context: ./apps/sample-app
-      dockerfile: Containerfile
+      context: ./sample-app
+      dockerfile: Dockerfile
     image: localhost/pca-sample-app:latest
     container_name: pca-sample-app
+    environment:
+      ERROR_RATE: "0.28"
     ports:
       - "8000:8000"
+    networks: [pca]
     restart: unless-stopped
 
-  # ── Generates traffic so the counters and histograms have something in them ─
   loadgen:
-    image: docker.io/curlimages/curl:latest
+    image: docker.io/curlimages/curl:8.12.1
     container_name: pca-loadgen
+    user: "0"
+    volumes:
+      - ./loadgen/run.sh:/run.sh:ro
+    entrypoint: ["/bin/sh", "/run.sh"]
+    networks: [pca]
+    restart: unless-stopped
     depends_on:
       - sample-app
-    entrypoint:
-      - /bin/sh
-      - -c
-      - |
-        while true; do
-          curl -s -o /dev/null "http://sample-app:8000/api/users"   || true
-          curl -s -o /dev/null "http://sample-app:8000/api/orders"  || true
-          curl -s -o /dev/null "http://sample-app:8000/api/slow"    || true
-          curl -s -o /dev/null "http://sample-app:8000/api/flaky"   || true
-          sleep 1
-        done
-    restart: unless-stopped
-
-volumes:
-  prom-data:
-  grafana-data:
-  am-data:
+      - pushgateway

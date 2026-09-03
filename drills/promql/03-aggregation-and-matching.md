@@ -4,16 +4,16 @@
 <details><summary>Answer</summary>
 
 ```promql
-sum by (job) (rate(app_requests_total[5m]))
+sum by (job) (rate(http_requests_total[5m]))
 ```
-`by` **keeps only** what you list. `method`, `route`, `status`, `instance` are all gone.
+`by` **keeps only** what you list. `method`, `endpoint`, `code`, `instance` are all gone.
 </details>
 
-### 2. Total request rate, keeping everything *except* `status`.
+### 2. Total request rate, keeping everything *except* `code`.
 <details><summary>Answer</summary>
 
 ```promql
-sum without (status) (rate(app_requests_total[5m]))
+sum without (code) (rate(http_requests_total[5m]))
 ```
 </details>
 
@@ -44,7 +44,7 @@ the same information cheaply, and Prometheus's own TSDB status page shows the
 top cardinality metrics and labels.
 </details>
 
-### 6. What's the difference between `avg(app_inflight_requests)` and `avg_over_time(app_inflight_requests[5m])`?
+### 6. What's the difference between `avg(http_in_flight_requests)` and `avg_over_time(http_in_flight_requests[5m])`?
 <details><summary>Answer</summary>
 
 `avg(...)` averages **across series** at a single instant — one number per
@@ -58,7 +58,7 @@ Different axes. Combine them: `avg(avg_over_time(x[5m]))`.
 <details><summary>Answer</summary>
 
 ```promql
-sum by (job, route) (rate(app_requests_total[5m]))
+sum by (job, route) (rate(http_requests_total[5m]))
   * on (job) group_left (version)
     app_build_info
 ```
@@ -68,15 +68,15 @@ build_info series on the right. The labels in `group_left(version)` are copied
 because it's always `1`.
 </details>
 
-### 8. Why does `rate(app_requests_total[5m]) / app_inflight_requests` return nothing?
+### 8. Why does `rate(http_requests_total[5m]) / http_in_flight_requests` return nothing?
 <details><summary>Answer</summary>
 
 One-to-one matching requires **identical label sets**. The left side carries
-`method`, `route`, `status`; the right side doesn't. Nothing matches, and
+`method`, `endpoint`, `code`; the right side doesn't. Nothing matches, and
 Prometheus tells you nothing — silently empty. Fix with `on()` or `ignoring()`:
 
 ```promql
-sum(rate(app_requests_total[5m])) / sum(app_inflight_requests)
+sum(rate(http_requests_total[5m])) / sum(http_in_flight_requests)
 ```
 </details>
 
@@ -84,7 +84,7 @@ sum(rate(app_requests_total[5m])) / sum(app_inflight_requests)
 <details><summary>Answer</summary>
 
 ```promql
-up{job="sample-app"} == 1 unless on (instance) (sum by (instance) (app_requests_total) > 0)
+up{job="sample-app"} == 1 unless on (instance) (sum by (instance) (http_requests_total) > 0)
 ```
 `unless` is set subtraction on label sets. `and` / `or` / `unless` all use
 vector matching, so `on()` / `ignoring()` apply to them too.

@@ -1,0 +1,34 @@
+# kubernetes_sd roles — study only, not loaded by compose.
+# PCA: recognize the role name and typical __meta_kubernetes_* labels.
+
+scrape_configs:
+  - job_name: k8s-nodes
+    kubernetes_sd_configs:
+      - role: node
+    relabel_configs:
+      - action: labelmap
+        regex: __meta_kubernetes_node_label_(.+)
+      - source_labels: [__address__]
+        regex: "(.+):(\\d+)"
+        replacement: "${1}:9100"
+        target_label: __address__
+
+  - job_name: k8s-pods
+    kubernetes_sd_configs:
+      - role: pod
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        action: keep
+        regex: "true"
+
+  - job_name: k8s-services
+    kubernetes_sd_configs:
+      - role: service
+
+  - job_name: k8s-endpoints
+    kubernetes_sd_configs:
+      - role: endpoints
+
+  - job_name: k8s-ingresses
+    kubernetes_sd_configs:
+      - role: ingress

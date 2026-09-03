@@ -1,0 +1,40 @@
+# PCA extras — paste into http://localhost:9090 (lab running, loadgen warm).
+
+# irate vs rate
+rate(http_requests_total[5m])
+irate(http_requests_total[2m])
+
+# time aggregation vs dimension aggregation
+avg_over_time(app_queue_depth[10m])
+avg by (instance) (app_cpu_temp_celsius)
+
+# gauges
+deriv(app_cpu_temp_celsius[5m])
+delta(app_queue_depth[5m])
+
+# absent vs down
+absent(up{job="does-not-exist"})
+up == 0
+
+# set ops
+app_queue_depth and on(instance) (up == 1)
+
+# many-to-one
+rate(http_requests_total[5m]) * on(instance) group_left(job) up
+
+# Linux / node-exporter (Pearson L11)
+1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)
+rate(node_cpu_seconds_total{mode!="idle"}[5m])
+node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"}
+rate(node_network_receive_bytes_total[5m])
+
+# SLO bucket at 30s
+sum(rate(upload_duration_seconds_bucket{le="30"}[5m]))
+/
+sum(rate(upload_duration_seconds_count[5m]))
+
+# heatmap source
+sum by (le) (rate(http_request_duration_seconds_bucket[5m]))
+
+# metric_relabel check: should be empty for job=prometheus after extras
+{job="prometheus",__name__=~"go_.*"}

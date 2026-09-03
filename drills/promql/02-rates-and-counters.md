@@ -4,16 +4,16 @@
 <details><summary>Answer</summary>
 
 ```promql
-sum(rate(app_requests_total[5m]))
+sum(rate(http_requests_total[5m]))
 ```
 **Rate first, then sum.** Summing before rating hides counter resets.
 </details>
 
-### 2. Requests per second, broken down by route.
+### 2. Requests per second, broken down by endpoint.
 <details><summary>Answer</summary>
 
 ```promql
-sum by (route) (rate(app_requests_total[5m]))
+sum by (endpoint) (rate(http_requests_total[5m]))
 ```
 </details>
 
@@ -21,7 +21,7 @@ sum by (route) (rate(app_requests_total[5m]))
 <details><summary>Answer</summary>
 
 ```promql
-sum(increase(app_requests_total[1h]))
+sum(increase(http_requests_total[1h]))
 ```
 `increase(x[1h])` == `rate(x[1h]) * 3600`. The result is usually **not a whole
 number** because Prometheus extrapolates to the window edges. Not a bug.
@@ -31,13 +31,13 @@ number** because Prometheus extrapolates to the window edges. Not a bug.
 <details><summary>Answer</summary>
 
 ```promql
-irate(app_requests_total[5m])
+irate(http_requests_total[5m])
 ```
 `irate` uses only the **last two samples** in the window. Great for zoomed-in
 graphs, bad for alerting — it flaps.
 </details>
 
-### 5. Try `rate(app_requests_total[10s])` with a 5s scrape interval. Then `[5s]`. What happens?
+### 5. Try `rate(http_requests_total[10s])` with a 5s scrape interval. Then `[5s]`. What happens?
 <details><summary>Answer</summary>
 
 `[10s]` gives you 2 samples — the bare minimum, and one missed scrape empties it.
@@ -49,7 +49,7 @@ two points to compute a difference. Rule of thumb: **range ≥ 4× scrape interv
 <details><summary>Answer</summary>
 
 ```promql
-sum(rate(app_requests_total{status=~"5.."}[5m]))
+sum(rate(http_requests_total{code=~"5.."}[5m]))
 ```
 </details>
 
@@ -57,8 +57,8 @@ sum(rate(app_requests_total{status=~"5.."}[5m]))
 <details><summary>Answer</summary>
 
 ```promql
-sum(rate(app_requests_total{status=~"5.."}[5m]))
-  / sum(rate(app_requests_total[5m]))
+sum(rate(http_requests_total{code=~"5.."}[5m]))
+  / sum(rate(http_requests_total[5m]))
 ```
 Both sides collapse to a single series with no labels, so they match trivially.
 Try it **without** the outer `sum()` on each side and watch it return nothing —
@@ -66,12 +66,12 @@ the label sets don't line up because one side has `status="500"` and the other
 has several values.
 </details>
 
-### 8. Which route has the highest error ratio?
+### 8. Which endpoint has the highest error ratio?
 <details><summary>Answer</summary>
 
 ```promql
-sum by (route) (rate(app_requests_total{status=~"5.."}[5m]))
-  / sum by (route) (rate(app_requests_total[5m]))
+sum by (endpoint) (rate(http_requests_total{code=~"5.."}[5m]))
+  / sum by (endpoint) (rate(http_requests_total[5m]))
 ```
 Routes with zero errors disappear entirely (no series on the left to match).
 Add `or on() vector(0)` if you need them shown as 0.
@@ -81,7 +81,7 @@ Add `or on() vector(0)` if you need them shown as 0.
 <details><summary>Answer</summary>
 
 ```promql
-app_inflight_requests
+http_in_flight_requests
 ```
 It's a **gauge** — read it directly. `rate()` on it would be meaningless.
 </details>
@@ -131,6 +131,35 @@ Least-squares extrapolation over the trailing hour. Gauge in, gauge out.
 topk(3, sum by (device) (rate(node_network_receive_bytes_total[5m])))
 ```
 `topk` returns **series**, keeping their labels — not a single number.
+</details>
+
+### 15. How long has Prometheus been running?
+<details><summary>Answer</summary>
+
+```promql
+time() - process_start_time_seconds{job="prometheus"}
+```
+`time()` is the query's evaluation time; `process_start_time_seconds` is a
+**timestamp exposed as a gauge**. Subtracting gives uptime in seconds.
+</details>
+
+### 16. The sample app exposes `alertmanager_last_webhook_timestamp_seconds`. Alert if no webhook has arrived in an hour.
+<details><summary>Answer</summary>
+
+```promql
+time() - alertmanager_last_webhook_timestamp_seconds > 3600
+```
+This is the pattern for alerting that something **did not happen**. A counter
+cannot express it, because nothing increments on failure. A last-success
+timestamp drifts further from `time()` every second until someone fixes it.
+</details>
+
+### 17. What is the difference between `time()` and `timestamp(up)`?
+<details><summary>Answer</summary>
+
+`time()` is a scalar: when the query ran. `timestamp(up)` is an instant vector:
+when each `up` sample was recorded. So `time() - timestamp(up)` tells you how
+stale each target's data is, which is a good way to spot a dying exporter.
 </details>
 
 ---

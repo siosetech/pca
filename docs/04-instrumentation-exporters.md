@@ -59,9 +59,9 @@ Python, the shape of it:
 ```python
 from prometheus_client import Counter, Gauge, Histogram, Summary, start_http_server
 
-REQS  = Counter("app_requests_total", "Total requests", ["method", "status"])
-INFLT = Gauge("app_inflight_requests", "In-flight requests")
-LAT   = Histogram("app_request_duration_seconds", "Latency",
+REQS  = Counter("http_requests_total", "Total requests", ["method", "status"])
+INFLT = Gauge("http_in_flight_requests", "In-flight requests")
+LAT   = Histogram("http_request_duration_seconds", "Latency",
                   buckets=[.005, .01, .025, .05, .1, .25, .5, 1, 2.5, 5, 10])
 
 REQS.labels(method="GET", status="200").inc()

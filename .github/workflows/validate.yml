@@ -32,7 +32,7 @@ jobs:
           docker run --rm --entrypoint promtool \
             -v "${{ github.workspace }}/lab/prometheus/rules:/rules:ro" \
             prom/prometheus:latest \
-            check rules /rules/recording.rules.yml /rules/alerts.rules.yml
+            check rules /rules/recording.yml /rules/alerting.yml
 
       - name: Alertmanager - check config
         run: |
@@ -42,7 +42,7 @@ jobs:
             check-config /etc/alertmanager/alertmanager.yml
 
       - name: Blackbox - parse config
-        run: python3 -c "import yaml; yaml.safe_load(open('lab/blackbox/blackbox.yml')); print('blackbox.yml ok')"
+        run: python3 -c "import yaml; yaml.safe_load(open('lab/blackbox/config.yml')); print('blackbox config ok')"
 
       - name: Grafana dashboards - valid JSON
         run: |
@@ -51,7 +51,7 @@ jobs:
           done
 
       - name: Sample app - syntax check
-        run: python3 -m py_compile lab/apps/sample-app/app.py
+        run: python3 -m py_compile lab/sample-app/app.py
 
       - name: Remaining TODOs in the notes
         run: |
@@ -90,3 +90,21 @@ jobs:
           name: lab-journal
           path: build/
           retention-days: 30
+
+  study:
+    name: Study app
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: study
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: study/package-lock.json
+
+      - run: npm ci
+      - run: npm run build

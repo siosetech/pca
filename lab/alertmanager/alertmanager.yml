@@ -1,55 +1,40 @@
-# Alertmanager — decides WHO hears about an alert, bundled with what, how often.
-# Prometheus already decided WHETHER it is firing.
-
 global:
   resolve_timeout: 5m
 
-# The routing TREE. Matched depth-first; children inherit the parent's settings.
 route:
-  receiver: default
-  group_by: ["alertname", "cluster", "job"]
-  group_wait: 30s        # a NEW group appeared — hold briefly in case friends arrive
-  group_interval: 5m     # this group already notified and something CHANGED
-  repeat_interval: 4h    # nothing changed, still broken — nag again
-
+  receiver: default-webhook
+  group_by: [alertname, severity]
+  group_wait: 10s
+  group_interval: 1m
+  repeat_interval: 2h
   routes:
     - matchers:
-        - severity = "critical"
+        - severity = critical
       receiver: pager
-      group_wait: 10s          # page faster than the default
-      continue: true           # ALSO keep matching the sibling routes below
-
+      group_wait: 5s
+      continue: false
     - matchers:
-        - team = "platform"
-      receiver: platform-team
+        - team = shop
+      receiver: shop-webhook
+      group_by: [alertname, env]
 
-    - matchers:
-        - severity = "warning"
-      receiver: default
-      repeat_interval: 12h
-
-# Suppress the noise alert while the serious one is firing.
 inhibit_rules:
   - source_matchers:
-      - severity = "critical"
+      - alertname = InstanceDown
     target_matchers:
-      - severity = "warning"
-    equal: ["alertname", "instance"]   # only when these labels are identical
+      - alertname = HighErrorRate
+    equal: [instance]
 
 receivers:
-  # No notifier configured: alerts land in the Alertmanager UI at :9093.
-  # That is enough to study grouping, inhibition and silences.
-  - name: default
-
+  - name: default-webhook
+    webhook_configs:
+      - url: http://sample-app:8000/webhook
+        send_resolved: true
   - name: pager
     webhook_configs:
-      - url: "http://localhost:5001/pager"
+      - url: http://sample-app:8000/webhook
         send_resolved: true
-
-  - name: platform-team
+  - name: shop-webhook
     webhook_configs:
-      - url: "http://localhost:5001/platform"
+      - url: http://sample-app:8000/webhook
         send_resolved: true
-
-  # > TODO: add a real slack_configs / email_configs receiver once I've read
-  # >       the notification-template docs, and template the message body.

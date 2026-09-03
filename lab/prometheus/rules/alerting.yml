@@ -1,0 +1,49 @@
+groups:
+  - name: pca.alerts
+    rules:
+      - alert: InstanceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: sre
+        annotations:
+          summary: "Instance {{ $labels.instance }} is down"
+          description: "Job {{ $labels.job }} has been unreachable for more than 1 minute."
+
+      - alert: HighErrorRate
+        expr: |
+          (
+            sum by (job, endpoint) (rate(http_requests_total{code=~"5.."}[5m]))
+            /
+            sum by (job, endpoint) (rate(http_requests_total[5m]))
+          ) > 0.05
+        for: 1m
+        labels:
+          severity: warning
+          team: shop
+        annotations:
+          summary: "High 5xx ratio on {{ $labels.endpoint }}"
+          description: "Error ratio is above 5% for job {{ $labels.job }}."
+
+      - alert: ProbeFailed
+        expr: probe_success == 0
+        for: 1m
+        labels:
+          severity: warning
+          team: sre
+        annotations:
+          summary: "Blackbox probe failed for {{ $labels.instance }}"
+
+      - alert: SlowRequests
+        expr: |
+          histogram_quantile(
+            0.99,
+            sum by (le, endpoint) (rate(http_request_duration_seconds_bucket[5m]))
+          ) > 0.5
+        for: 2m
+        labels:
+          severity: warning
+          team: shop
+        annotations:
+          summary: "p99 latency above 500ms on {{ $labels.endpoint }}"

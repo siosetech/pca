@@ -55,21 +55,21 @@ name itself: `{__name__=~"node_cpu.*"}`.
 ```
 </details>
 
-### 7. The last 5 minutes of raw samples for `app_requests_total`.
+### 7. The last 5 minutes of raw samples for `http_requests_total`.
 <details><summary>Answer</summary>
 
 ```promql
-app_requests_total[5m]
+http_requests_total[5m]
 ```
 This is a **range vector**. It shows in the Table tab but **cannot be graphed** —
 that error message is worth seeing once on purpose.
 </details>
 
-### 8. The value of `app_requests_total` as it was one hour ago.
+### 8. The value of `http_requests_total` as it was one hour ago.
 <details><summary>Answer</summary>
 
 ```promql
-app_requests_total offset 1h
+http_requests_total offset 1h
 ```
 </details>
 
@@ -106,13 +106,13 @@ Alongside `up`, `scrape_samples_scraped`, `scrape_series_added` and
 Prometheus adds to every scrape. Knowing they exist is exam-worthy.
 </details>
 
-### 12. Every route the sample app knows about, as a list of label values.
+### 12. Every endpoint the sample app knows about, as a list of label values.
 <details><summary>Answer</summary>
 
 ```promql
-count by (route) (app_requests_total)
+count by (endpoint) (http_requests_total)
 ```
-or, in Grafana's variable syntax, `label_values(app_requests_total, route)`.
+or, in Grafana's variable syntax, `label_values(http_requests_total, route)`.
 </details>
 
 ---

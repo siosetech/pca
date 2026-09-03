@@ -1,0 +1,28 @@
+# Relabel actions — PCA study snippet (not all loaded by compose).
+#
+# relabel_configs:    runs on *targets* before scrape
+# metric_relabel_configs: runs on *samples* after scrape
+#
+# Common actions: keep, drop, replace, labelmap, labeldrop, labelkeep, hashmod
+
+scrape_configs:
+  - job_name: demo-relabel
+    static_configs:
+      - targets: ["sample-app:8000"]
+        labels:
+          team: shop
+    relabel_configs:
+      - source_labels: [team]
+        regex: shop
+        action: keep
+      - source_labels: [__address__]
+        regex: "([^:]+):\\d+"
+        target_label: instance_host
+        replacement: "${1}"
+        action: replace
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: go_.*
+        action: drop
+      - regex: "id|pod_template_hash"
+        action: labeldrop

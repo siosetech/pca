@@ -1,12 +1,12 @@
 apiVersion: 1
 
 providers:
-  - name: "pca-lab"
+  - name: pca
     orgId: 1
-    folder: "PCA Lab"
+    folder: PCA Lab
     type: file
     disableDeletion: false
-    updateIntervalSeconds: 15
+    updateIntervalSeconds: 30
     allowUiUpdates: true
     options:
       path: /var/lib/grafana/dashboards

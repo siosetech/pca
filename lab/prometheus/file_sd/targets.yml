@@ -1,0 +1,9 @@
+# File-based service discovery targets.
+# Prometheus re-reads this directory every 30s (see prometheus.yml).
+# To practice drop relabeling, set team: dropme on a target.
+- targets:
+    - alertmanager:9093
+  labels:
+    job: alertmanager-filesd
+    team: sre
+    env: lab

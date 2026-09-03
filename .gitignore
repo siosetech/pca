@@ -1,21 +1,33 @@
-# Lab runtime state — never commit
+# ── Lab runtime state — never commit ────────────────────────────────────────
 lab/data/
 lab/**/data/
 *.db
 *.wal
-
-# Grafana
 lab/grafana/grafana.db
 
-# Rendered journal output
-build/
+# ── Rendered journal output ─────────────────────────────────────────────────
+/build
+/out
+/coverage
 
-# Local scratch
+# ── study/ — Next.js ────────────────────────────────────────────────────────
+node_modules
+.next
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# ── Local scratch and secrets ───────────────────────────────────────────────
 scratch/
 *.local.md
-.env
+.env*
+*.pem
 
-# Editors / OS
+# ── Editors / OS ────────────────────────────────────────────────────────────
 .vscode/
 .idea/
 *.swp
