@@ -352,7 +352,7 @@
    "up{job=\"api\"} and {__name__=\"up\", job=\"api\"}",
    "up{job=\"api\"} and up[job=\"api\"]",
    "up{job=\"api\"} and sum(up{job=\"api\"})",
-   "up{job=\"api\"} and up{job=~\"api\"} offset 0"
+   "up{job=\"api\"} and up{job=~\"api\"} offset 1h"
   ],
   "ans": [
    0
@@ -2849,15 +2849,15 @@
   "type": "single",
   "q": "A histogram has buckets at 0.1, 0.5 and +Inf. What does histogram_quantile(0.99, ...) return when almost all observations fall between 0.5 and +Inf?",
   "opts": [
-   "A value that cannot be trusted, because the top bucket is unbounded",
-   "Exactly 0.5",
+   "0.5, the last finite bound — not a trustworthy p99",
+   "Exactly 0.99",
    "NaN, because +Inf cannot be interpolated",
    "The true p99, since +Inf is always accurate"
   ],
   "ans": [
    0
   ],
-  "why": "Interpolation inside the last finite bucket is impossible once you are past it, so the result is effectively the top boundary. If your p99 lands in +Inf, the bucket layout is wrong, not the query.",
+  "why": "Once the quantile sits in +Inf, interpolation has no upper finite bound, so Prometheus returns the last finite bucket (0.5). That is not the real p99 — the bucket list is too coarse.",
   "ref": "content/notes/03-promql.md",
   "form": "B",
   "id": "promql-048"
