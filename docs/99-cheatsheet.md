@@ -92,6 +92,31 @@ topk(5, sum by (instance) (rate(node_network_receive_bytes_total[5m])))
 absent(up{job="api"})
 ```
 
+## Timestamp metrics
+
+```promql
+time()                                  # when the query ran
+timestamp(v)                            # when each sample in v was recorded
+time() - process_start_time_seconds     # uptime
+time() - x_last_success_timestamp_seconds > 86400   # batch job missed a day
+probe_ssl_earliest_cert_expiry - time() < 7*86400   # cert expiring
+```
+`hour() day_of_week() month()` are **UTC**. For timezones use Alertmanager
+`mute_time_intervals`. PromQL has no chained comparison: `a >= 8 < 18` is invalid.
+
+## Tracing vocabulary
+
+Trace = one request. Span = one unit of work inside it, carrying **trace ID,
+span ID, parent span ID**, duration, attributes. Root span has no parent.
+Context propagation travels in the **`traceparent`** header (W3C).
+Head-based sampling decides up front; **tail-based** can keep every slow trace.
+**Exemplar** = a trace ID attached to a sample, the bridge from metric to trace.
+
+## What Prometheus is not for
+
+Exact counts (billing) · logs and events · replicated or long-term storage ·
+unbounded cardinality · multi-tenancy or auth · reaching targets it cannot dial.
+
 ## Last-minute distinctions
 
 - Prometheus decides **whether**; Alertmanager decides **who / how often**.
@@ -102,3 +127,6 @@ absent(up{job="api"})
 - Federation = pull aggregates **between Prometheus servers**; remote_write = ship samples **out**.
 - Prometheus is **not** clustered. HA = two identical servers + a clustered Alertmanager.
 - Colons in metric names ⇒ recording rules only.
+- `time()` is when the query ran; `timestamp(v)` is when the sample was recorded.
+- A counter cannot express "it never ran". A last-success timestamp can.
+- Alert only if it is urgent **and** actionable **and** needs judgement.

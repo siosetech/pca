@@ -17,7 +17,7 @@ pca/
 ├── lab/         # the runnable Prometheus stack (Podman)
 ├── drills/      # PromQL exercises, flashcards, the exam simulator
 ├── journal/     # lab journal: what I did, with screenshots (AsciiDoc)
-├── progress/    # 3-week plan + daily log
+├── progress/    # 4-week plan + daily log
 └── .github/     # CI: promtool/amtool validate every config on push
 ```
 
@@ -31,7 +31,7 @@ pca/
 | `drills/flashcards.md` | Q/A pairs for spaced repetition |
 | `drills/mock-exams/simulator/` | Interactive timed mock exam — open `index.html` in a browser |
 | `journal/` | Narrative write-ups with screenshots, rendered to HTML/PDF. See [`journal/README.adoc`](journal/README.adoc) |
-| `progress/plan-3-weeks.md` | Day-by-day plan, weighted by exam domains |
+| `progress/plan-4-weeks.md` | 12 sessions over 4 weeks, weighted by exam domains |
 | `progress/log.md` | What I actually did each day |
 
 ---

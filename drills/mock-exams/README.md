@@ -3,7 +3,7 @@
 ## The simulator
 
 [`simulator/index.html`](simulator/index.html) is a self-contained mock exam —
-open it in a browser, no build step. 79 questions drawn to the official domain
+open it in a browser, no build step. 93 questions drawn to the official domain
 weights, options reshuffled every attempt, 90-minute timer, per-domain scoring
 against the 75% pass mark, and a full review with explanations. See
 [`simulator/README.md`](simulator/README.md).

@@ -209,6 +209,47 @@ That's why `scrape_interval` should stay well under 5m.
 > TODO: in the lab, break the scrape config on purpose and watch what
 > `promtool check config` says vs what the `/targets` page says.
 
+## 2.8 Understanding Prometheus's limitations
+
+An explicit exam topic, and the one people revise least. Knowing what Prometheus
+is *not* for is the same knowledge as knowing what it is for.
+
+**It is not an exact accounting system.** Values are sampled at the scrape
+interval, and `rate()` and `increase()` extrapolate to the window edges. If a
+counter went up 4 times, `increase()` may honestly report 4.6. That is fine for
+alerting and capacity work and **disqualifying for billing**, invoicing, or
+anything where a number must be exactly right. Use logs or an event store there.
+
+**It is not a log or event store.** There is no per-request record. Prometheus
+holds `float64` samples against label sets and nothing else, which is exactly
+why high-cardinality identifiers must stay out of labels.
+
+**Local storage is a single node.** Not replicated, not clustered, not durable
+in the way a database is. Losing the disk loses the data. HA means running two
+identical servers, not a cluster.
+
+**It is not long-term storage.** Retention defaults to 15 days. For months or
+years, `remote_write` to Thanos, Cortex, Mimir or VictoriaMetrics.
+
+**Cardinality is the hard ceiling.** Memory scales with the number of *active
+series*, not with sample volume. One careless label can cost more than a year of
+traffic growth.
+
+**It has no built-in authentication or multi-tenancy.** TLS and basic auth exist
+via the web configuration file; anything richer belongs behind a reverse proxy.
+Every scraped target is trusted equally.
+
+**The pull model has reach requirements.** Prometheus must be able to open a
+connection to every target. Targets behind NAT, and jobs that exit before the
+next scrape, need help (the Pushgateway, or the textfile collector).
+
+**Delivery is best-effort.** A missed scrape is a gap, not a retry. There is no
+exactly-once anything.
+
+> Mental model: Prometheus answers **"how much, and is it getting worse?"** for
+> a bounded set of dimensions. Every limitation above is the price of the thing
+> that makes it fast and cheap at that one job.
+
 ---
 
 ## Self-check
@@ -223,3 +264,6 @@ That's why `scrape_interval` should stay well under 5m.
 8. Two Prometheus servers scrape the same targets for HA. Where does deduplication happen?
 9. What is the default staleness lookback, and why does it constrain my scrape interval?
 10. Name the five Kubernetes SD roles.
+11. Give three reasons Prometheus is the wrong tool for generating customer invoices.
+12. What scales Prometheus memory usage: the number of samples, or the number of active series?
+13. Prometheus has no built-in authentication. What are the two ways to put access control in front of it?

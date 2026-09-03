@@ -24,6 +24,14 @@ later.
 | Three label values that cause a cardinality bomb | User IDs, email addresses, full URLs / session IDs / timestamps |
 | Alert on symptoms or causes? | Symptoms — "users are getting errors", not "CPU is high" |
 
+| Structured vs unstructured log | Structured is machine-parseable by field (JSON/key=value); unstructured needs grep and hope |
+| Why logs are wrong for always-on alerting | Cost grows per event, and search slows exactly when an incident needs it |
+| Order the three signals are used in an incident | Metrics detect, logs diagnose, traces locate |
+| What a span carries | Trace ID, its own span ID, parent span ID, duration, attributes. The root span has no parent |
+| Context propagation | Passing trace and span IDs between services; W3C standardises the `traceparent` header |
+| Head-based vs tail-based sampling | Head decides up front; tail decides after the request finishes, so it can keep every slow trace |
+| Exemplar | A trace ID attached to a metric sample — the bridge from a latency spike to one causing request |
+
 ## Prometheus fundamentals
 
 | Question | Answer |
@@ -56,6 +64,9 @@ later.
 | Are metric types enforced by the TSDB? | No — the type is a convention carried in `# TYPE` |
 | Histogram vs summary: which aggregates across instances? | Histogram |
 | Histogram vs summary: which computes quantiles in the client? | Summary |
+| Why Prometheus is wrong for billing | Samples are periodic and rate/increase extrapolate — counts are approximate by design |
+| What drives Prometheus memory usage | The number of **active series**, not sample volume or retention |
+| Four things stock Prometheus does not give you | Replicated storage, long-term retention, multi-tenancy/auth, exactly-once delivery |
 
 ## PromQL
 
@@ -83,6 +94,11 @@ later.
 | What a subquery looks like | `max_over_time(rate(x[5m])[1h:1m])` |
 | Function to extrapolate a gauge into the future | `predict_linear(v[1h], 4*3600)` |
 | Operator precedence, highest first | `^`, then `* / %`, then `+ -`, then comparison, then `and`/`unless`, then `or` |
+| `time()` vs `timestamp(v)` | Query evaluation time, vs when each sample in v was recorded |
+| Alert that a nightly job did not run | `time() - x_last_success_timestamp_seconds > 86400` |
+| Why a counter cannot express "it never ran" | Nothing increments on failure. A last-success timestamp drifts instead |
+| Timezone of `hour()` and `day_of_week()` | UTC. Use Alertmanager `mute_time_intervals` for local business hours |
+| Is `hour() >= 8 < 18` valid? | No — PromQL has no chained comparison. Use two clauses joined with `and` |
 
 ## Instrumentation and exporters
 
@@ -133,3 +149,7 @@ later.
 | Is Grafana part of Prometheus? | No — it's a separate project, the de facto dashboarding layer |
 | Grafana variable for a safe `rate()` range | `$__rate_interval` |
 | How Alertmanager achieves HA | A gossip cluster; every Prometheus points at **all** peers, and the cluster dedupes |
+| Three tests an alert must pass to page | Urgent, actionable, and needs human judgement |
+| Symptom vs cause alerting, and why | Alert on symptoms: causes multiply with the architecture, symptoms stay few |
+| Cost of alert fatigue | A responder trained by false pages is slower to the real one |
+| What `runbook_url` is for | At 3am it is the difference between a two-minute fix and reconstructing your reasoning |

@@ -24,14 +24,95 @@ they're the alerting layer.
 
 > TODO: in my own words — when would I reach for a trace instead of a metric?
 
-## 1.2 Monitoring vs observability
+## 1.2 Logs and events
+
+A **log** is a timestamped record of a discrete event. A **metric** is an
+aggregate. That one difference drives every tradeoff between them.
+
+| | Unstructured log | Structured log |
+|---|---|---|
+| Shape | `2026-09-03 00:14 ERROR payment failed for order 8821` | `{"ts":"...","level":"error","msg":"payment failed","order_id":8821}` |
+| Queryable | grep, and hope | by field, reliably |
+| Cost | cheap to write, expensive to search | slightly larger, far cheaper to query |
+
+**Events** are the same idea with intent: a deliberate, machine-readable record
+of something that happened (a deploy, a config change, a scaling action), often
+carrying structured attributes rather than a human-readable sentence.
+
+### Why logs are the wrong alerting substrate
+
+Cost. A metric's storage is a fixed number of series regardless of traffic; a
+log line is written *per event*. Ten times the traffic is ten times the log
+bill, and log search latency grows with volume exactly when you need it fastest,
+during an incident.
+
+### Where logs win outright
+
+- The exact error message and stack trace. A metric can tell you the error rate
+  rose; only a log tells you it was a null pointer in the payment handler.
+- Audit trails, where every individual record legally matters.
+- Anything with unbounded identifiers, which is precisely what must **not**
+  become a Prometheus label (see [cardinality](#18-cardinality)).
+
+> Mental model: **metrics detect, logs diagnose, traces locate.** An incident
+> usually runs in that order, and each signal hands off to the next.
+
+Prometheus does not store logs, and it should not be made to. Log aggregation is
+Loki, Elasticsearch/OpenSearch or Splunk's job.
+
+## 1.3 Tracing and spans
+
+A **trace** follows one request across every service it touches. It is made of
+**spans**, and a span is one unit of work.
+
+```
+trace_id: 4bf92f...
+  ├─ span: GET /checkout            120 ms   (root span, no parent)
+  │   ├─ span: auth.verify           8 ms
+  │   ├─ span: inventory.reserve    22 ms
+  │   └─ span: payment.charge      86 ms
+  │        └─ span: bank-api POST   74 ms   ← the actual culprit
+```
+
+Each span carries:
+
+- a **trace ID**, shared by every span in the request
+- a **span ID** of its own, and a **parent span ID** (the root span has none)
+- a start timestamp and a duration
+- **attributes** (tags): HTTP method, status, customer tier, whatever you set
+
+**Context propagation** is what stitches them together: the trace and span IDs
+travel between services in a request header, standardised by W3C as
+`traceparent`. Without propagation you get disconnected spans, not a trace.
+
+**Sampling** exists because keeping a trace for every request is unaffordable.
+*Head-based* sampling decides at the start (keep 1%); *tail-based* decides after
+the fact, which lets you keep all the slow or failed traces and throw away the
+boring ones, at the cost of buffering.
+
+**OpenTelemetry** is the vendor-neutral standard for producing traces (and
+metrics and logs); Jaeger, Tempo and Zipkin store and display them.
+
+### Where this touches Prometheus
+
+**Exemplars.** An OpenMetrics exposition can attach a trace ID to a sample:
+
+```
+http_request_duration_seconds_bucket{le="1.0"} 214 # {trace_id="4bf92f..."} 0.94 1609746000
+```
+
+That lets you click a spike in a latency histogram and jump straight to a trace
+of one request that caused it. It is the seam between the metric that detected
+the problem and the trace that explains it.
+
+## 1.4 Monitoring vs observability
 
 - **Monitoring** — watching known failure modes. Predefined dashboards and alerts.
 - **Observability** — a property of the system: can I infer internal state from
   external outputs? High-cardinality, dimensional data is what makes it possible.
 - **Telemetry** — the data itself, and the act of shipping it.
 
-## 1.3 Push vs pull
+## 1.5 Push vs pull
 
 Prometheus **pulls** (scrapes) targets over HTTP. This is a real exam topic.
 
@@ -49,7 +130,7 @@ The pull model's escape hatch for short-lived batch jobs is the **Pushgateway**
 > Mental model: pull means **the monitoring system holds the target list**. That
 > single fact explains almost every pull-vs-push tradeoff above.
 
-## 1.4 SLI, SLO, SLA, error budget
+## 1.6 SLI, SLO, SLA, error budget
 
 | Term | Definition | Example |
 |---|---|---|
@@ -73,7 +154,7 @@ Availability, roughly:
 | 99.99% | ~4.3 min | ~53 min |
 | 99.999% | ~26 s | ~5.3 min |
 
-## 1.5 The three method frameworks
+## 1.7 The three method frameworks
 
 Know which applies to what — this is a classic exam question.
 
@@ -96,7 +177,7 @@ Know which applies to what — this is a classic exam question.
 > Mental model: **USE looks at the machine, RED looks at the request.** Golden
 > Signals ≈ RED + Saturation.
 
-## 1.6 Cardinality
+## 1.8 Cardinality
 
 **Cardinality = the number of distinct time series.** One series per unique
 combination of metric name + label values.
@@ -114,7 +195,7 @@ container IDs that churn. Each new value is a new series held in memory forever
 Rule of thumb: **if you can't enumerate the possible values, it's not a label.**
 That's what logs and traces are for.
 
-## 1.7 Alerting philosophy
+## 1.9 Alerting philosophy
 
 - **Alert on symptoms, not causes.** "Users are getting 500s" pages someone.
   "A node has high CPU" does not — that's a dashboard.
@@ -136,3 +217,8 @@ Answer these without looking. If I can't, the section above isn't done.
 5. What's the difference between an SLO and an SLA, and which one is stricter?
 6. Which of the three pillars has a storage cost that doesn't grow with traffic, and why?
 7. Why is "CPU is at 95%" usually a bad thing to page on?
+8. What does a span carry that lets a tracing backend rebuild the call tree?
+9. What is context propagation, and which header standardises it?
+10. Head-based vs tail-based sampling: which one can keep every slow trace, and what does it cost?
+11. What is an exemplar, and which of the three pillars does it bridge?
+12. Structured vs unstructured logs: name the practical difference during an incident.

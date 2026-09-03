@@ -226,7 +226,79 @@ day_of_week() hour() month() year() days_in_month()
 `absent()` is the idiomatic way to alert that a target has **vanished
 entirely** — `up == 0` can't fire for a target that no longer exists.
 
-## 3.8 Patterns worth memorising
+## 3.8 Timestamp metrics
+
+A named sub-topic in the official curriculum, and easy to skip because it looks
+trivial. The idea: **a Unix timestamp exposed as a gauge**, which you then
+compare against the current time.
+
+Common ones:
+
+| Metric | Meaning |
+|---|---|
+| `process_start_time_seconds` | when the process started |
+| `node_boot_time_seconds` | when the host booted |
+| `probe_ssl_earliest_cert_expiry` | when the TLS certificate expires |
+| `<job>_last_success_timestamp_seconds` | when a batch job last succeeded (you expose this) |
+
+And two functions that produce time rather than read it:
+
+```promql
+time()                 # the query evaluation time, in Unix seconds
+timestamp(up)          # the timestamp OF EACH SAMPLE in the vector, as a value
+```
+
+> The difference is worth saying out loud. `time()` is *when the query ran*.
+> `timestamp(v)` is *when each sample in v was recorded*. Confusing them is a
+> classic exam trap.
+
+### The patterns
+
+```promql
+# How long has this process been running?
+time() - process_start_time_seconds
+
+# Did the nightly batch job succeed in the last 24 hours?
+time() - backup_last_success_timestamp_seconds > 86400
+
+# TLS certificate expiring within a week
+probe_ssl_earliest_cert_expiry - time() < 7 * 86400
+
+# How stale is this series? (useful when debugging a dead exporter)
+time() - timestamp(my_metric)
+```
+
+The batch-job pattern is the important one: it is **how you alert that something
+did not happen.** A counter cannot express absence — nothing increments when a
+job fails to run — but a "last success" timestamp drifting away from `time()`
+grows without bound until someone fixes it. This is the natural partner to the
+Pushgateway and to node_exporter's textfile collector.
+
+### Time-of-day functions
+
+These take an optional vector of timestamps and default to `time()`:
+
+```promql
+hour()          # 0-23, UTC
+day_of_week()   # 0 = Sunday
+day_of_month()  month()  year()  days_in_month()  minute()
+```
+
+Used to scope an alert to business hours. Note that PromQL has **no chained
+comparison** - `hour() >= 8 < 18` is not valid, you need two clauses joined with
+`and`:
+
+```promql
+job:app_requests:error_ratio5m > 0.05
+  and on() (hour() >= 8)
+  and on() (hour() < 18)
+```
+
+CAUTION: they work in **UTC**, not your local timezone. Alertmanager's
+`mute_time_intervals` is usually the better tool for this, because it does
+understand timezones.
+
+## 3.9 Patterns worth memorising
 
 ```promql
 # Request rate per second, by service
@@ -256,7 +328,7 @@ histogram_quantile(0.95,
   sum by (le, route) (rate(http_request_duration_seconds_bucket[5m])))
 ```
 
-## 3.9 The mistakes I will actually make
+## 3.10 The mistakes I will actually make
 
 | Wrong | Right | Why |
 |---|---|---|
@@ -283,3 +355,7 @@ histogram_quantile(0.95,
 8. `avg(x)` vs `avg_over_time(x[5m])` — which axis does each average over?
 9. How do I alert that a target has disappeared entirely rather than gone down?
 10. My range is `[30s]` and my scrape interval is `30s`. What happens and why?
+11. `time()` vs `timestamp(v)` — which is the query's evaluation time?
+12. Write the alert expression for "the nightly backup has not succeeded in 24 hours".
+13. Why can a counter not express "this job never ran", and what can?
+14. `hour() >= 8` in an alert: what timezone is that, and what should I use instead?

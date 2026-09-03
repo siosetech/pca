@@ -9,7 +9,7 @@ start D:\dev\workspace\pca\drills\mock-exams\simulator\index.html
 
 ## What it does
 
-- **79 questions** in the bank, drawn to the official domain weights on every
+- **93 questions** in the bank, drawn to the official domain weights on every
   attempt (60 questions → 11 / 12 / 17 / 9 / 11 across the five domains).
 - **Answer options are reshuffled every run**, so the position of the correct
   answer is never learnable.

@@ -156,6 +156,47 @@ Other bits:
 - Panel-design advice: dashboards should follow **USE or RED**, be readable in
   five seconds during an incident, and show the SLO line where one exists.
 
+## 5.5 Alerting basics: when, what and why
+
+The curriculum lists this separately from "configuring alerting rules", and the
+distinction is real: one is syntax, this is judgement.
+
+**When to alert.** Only when a human must act, now. The test is three questions,
+and a page needs all three to be yes:
+
+1. Is it **urgent**? If it can wait until Monday, it is a ticket.
+2. Is it **actionable**? If the responder can only watch, it is a dashboard.
+3. Does it need **judgement**? If the fix is "restart it", automate the restart.
+
+**What to alert on.** Symptoms, not causes. "Users are getting 500s" pages
+someone; "a node has high CPU" does not, because high CPU with happy users is
+a well-utilised machine. Cause-based alerts multiply with your architecture;
+symptom-based alerts stay roughly constant, because the number of ways users
+experience failure is small.
+
+The natural sources of symptom alerts are the frameworks from
+`docs/01`: the **Four Golden Signals** for user-facing services, **RED** for
+request-driven ones, **USE** for the resources underneath. SLO burn rate is the
+most refined version: alert when the error budget is being consumed fast enough
+to run out early, rather than on any single bad minute.
+
+**Why it matters.** Alert fatigue is a real failure mode with a measurable
+consequence: an on-call engineer who has been paged eleven times this week for
+nothing will be slower to the twelfth page, which is the real one. Every
+low-value alert borrows attention from a future incident.
+
+**Severity, and what it should mean:**
+
+| Label | Meaning | Route |
+|---|---|---|
+| `critical` | Users are affected now. Wake someone | Pager |
+| `warning` | Will become critical if ignored. Business hours | Chat, ticket |
+| `info` | Context for an incident, never notified alone | Dashboard only |
+
+**Every alert should carry a runbook.** The `runbook_url` annotation is not
+decoration: at 3am, the difference between a two-minute fix and a thirty-minute
+one is whether the responder has to reconstruct your reasoning from scratch.
+
 ---
 
 ## Self-check
@@ -170,3 +211,6 @@ Other bits:
 8. How do I mute everything on `host-7` for a two-hour maintenance window?
 9. What does the recording-rule naming convention `level:metric:operations` mean?
 10. Why does Prometheus keep re-sending a firing alert instead of sending it once?
+11. Three questions an alert must pass before it is allowed to page someone.
+12. Why do symptom-based alerts scale better than cause-based ones?
+13. What is alert fatigue, and what is its concrete cost during a real incident?
