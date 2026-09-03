@@ -41,8 +41,8 @@ export function SiteFooter() {
   return (
     <footer className="mt-auto border-t border-border/80">
       <div className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-6 text-xs text-muted-foreground sm:flex-row sm:justify-between">
-        <p>Linux Foundation PCA study lab — not official exam material.</p>
-        <p>Exam is in English, 90 minutes, multiple choice.</p>
+        <p>Linux Foundation PCA — not official exam material.</p>
+        <p>90 minutes · multiple choice · English</p>
       </div>
     </footer>
   );

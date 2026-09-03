@@ -84,13 +84,10 @@ HA: Prometheus is not clustered; remote_write for long-term`,
 export default function CheatsheetPage() {
   return (
     <div className="space-y-8">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-medium">Cheatsheet</h1>
-        <p className="max-w-2xl text-muted-foreground leading-relaxed">
-          The exam is closed-book. Memorize these key patterns during your lab
-          practice before taking the test.
-        </p>
-      </div>
+      <header className="space-y-2">
+        <h1 className="text-3xl font-medium tracking-tight">Cheatsheet</h1>
+        <p className="text-muted-foreground">Closed-book patterns.</p>
+      </header>
       <div className="grid gap-4 md:grid-cols-2">
         {blocks.map((b) => (
           <section key={b.title} className="space-y-2">

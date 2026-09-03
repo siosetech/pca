@@ -1,116 +1,64 @@
 import Link from "next/link";
-import { ArrowRight, Cpu, HardDrive, MemoryStick, Server } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { domains } from "@/lib/data/domains";
-import { findings, hardwareNotes } from "@/lib/data/findings";
 import { labServices } from "@/lib/data/services";
+import { PASS_RATIO, quizQuestions } from "@/lib/data/quiz";
 
-const severityLabel = {
-  keep: "Keep",
-  fix: "Fixed in this lab",
-  next: "Next",
-} as const;
+const endpoints = labServices.filter((s) => s.port && s.url);
 
 export default function HomePage() {
   return (
-    <div className="space-y-10">
-      <section className="space-y-4">
+    <div className="space-y-16">
+      <section className="space-y-6">
         <Badge variant="secondary">Linux Foundation · PCA</Badge>
-        <h1 className="max-w-3xl text-3xl font-medium tracking-tight text-pretty sm:text-4xl">
-          The Podman stack on the laptop fits the PCA curriculum. What was
-          missing was pinned configs, rules, and PromQL practice.
-        </h1>
-        <p className="max-w-2xl text-muted-foreground leading-relaxed">
-          MSI i9 / 32 GB, rootful WSL Podman, 8-container <code>pca-lab</code>{" "}
-          compose. This repo maps these services to exam topics: recording /
-          alerting rules, Alertmanager grouping, blackbox relabeling, Pushgateway,
-          histogram SLO buckets, and a practice exam.
-        </p>
+        <div className="space-y-3">
+          <h1 className="max-w-xl text-4xl font-medium tracking-tight text-pretty sm:text-5xl">
+            Prometheus Certified Associate
+          </h1>
+          <p className="max-w-md text-muted-foreground">
+            Timed mock, PromQL drills, and a pinned lab — mapped to the official domains.
+          </p>
+        </div>
         <div className="flex flex-wrap gap-2">
-          <Button nativeButton={false} render={<Link href="/lab" />}>
-            Run Lab
+          <Button size="lg" nativeButton={false} render={<Link href="/quiz" />}>
+            Practice exam
             <ArrowRight data-icon="inline-end" />
           </Button>
-          <Button nativeButton={false} variant="outline" render={<Link href="/quiz" />}>
-            Practice Exam
-          </Button>
-          <Button nativeButton={false} variant="ghost" render={<Link href="/promql" />}>
-            PromQL (28%)
-          </Button>
-          <Button nativeButton={false} variant="ghost" render={<Link href="/extras" />}>
-            Extras
+          <Button size="lg" variant="outline" nativeButton={false} render={<Link href="/lab" />}>
+            Open lab
           </Button>
         </div>
+        <p className="text-sm text-muted-foreground">
+          <span className="font-mono tabular-nums text-foreground">{quizQuestions.length}</span> questions
+          <span className="mx-2 text-border">·</span>
+          <span className="font-mono tabular-nums text-foreground">90 min</span>
+          <span className="mx-2 text-border">·</span>
+          <span className="font-mono tabular-nums text-foreground">{Math.round(PASS_RATIO * 100)}%</span> to pass
+          <span className="mx-2 text-border">·</span>
+          <span className="font-mono tabular-nums text-foreground">{domains.length}</span> domains
+        </p>
       </section>
 
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Card size="sm">
-          <CardHeader>
-            <CardDescription className="flex items-center gap-1.5">
-              <Cpu className="size-3.5" /> CPU
-            </CardDescription>
-            <CardTitle>{hardwareNotes.cpu}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card size="sm">
-          <CardHeader>
-            <CardDescription className="flex items-center gap-1.5">
-              <MemoryStick className="size-3.5" /> Memory
-            </CardDescription>
-            <CardTitle>{hardwareNotes.memory}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card size="sm">
-          <CardHeader>
-            <CardDescription className="flex items-center gap-1.5">
-              <HardDrive className="size-3.5" /> Disk
-            </CardDescription>
-            <CardTitle>{hardwareNotes.disk}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card size="sm">
-          <CardHeader>
-            <CardDescription className="flex items-center gap-1.5">
-              <Server className="size-3.5" /> Engine
-            </CardDescription>
-            <CardTitle className="text-sm leading-snug">{hardwareNotes.engine}</CardTitle>
-          </CardHeader>
-        </Card>
-      </section>
-
-      <section className="space-y-3">
-        <h2 className="text-xl font-medium">Environment Review</h2>
-        <div className="grid gap-3 md:grid-cols-2">
-          {findings.map((f) => (
-            <Card key={f.title}>
-              <CardHeader>
-                <Badge variant={f.severity === "fix" ? "default" : "secondary"}>
-                  {severityLabel[f.severity]}
-                </Badge>
-                <CardTitle>{f.title}</CardTitle>
-                <CardDescription className="leading-relaxed">{f.detail}</CardDescription>
-              </CardHeader>
-            </Card>
-          ))}
+      <section className="space-y-4">
+        <div className="flex items-baseline justify-between gap-4">
+          <h2 className="text-sm font-medium text-muted-foreground">Curriculum</h2>
+          <Link
+            href="/domains"
+            className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+          >
+            All topics
+          </Link>
         </div>
-      </section>
-
-      <section className="space-y-3">
-        <h2 className="text-xl font-medium">Exam Weights</h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {domains.map((d) => (
             <Link key={d.slug} href={`/domains/${d.slug}`}>
               <Card className="h-full transition hover:ring-primary/40">
                 <CardHeader>
-                  <p className="font-mono text-2xl text-primary">{d.weight}%</p>
-                  <CardTitle className="text-sm">{d.title}</CardTitle>
+                  <p className="font-mono text-2xl tabular-nums text-primary">{d.weight}%</p>
+                  <CardTitle className="text-sm leading-snug">{d.title}</CardTitle>
                 </CardHeader>
               </Card>
             </Link>
@@ -118,34 +66,34 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="space-y-3">
-        <h2 className="text-xl font-medium">Compose Services</h2>
-        <div className="overflow-x-auto rounded-xl ring-1 ring-foreground/10">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-left text-muted-foreground">
-              <tr>
-                <th className="px-3 py-2 font-medium">Service</th>
-                <th className="px-3 py-2 font-medium">Port</th>
-                <th className="px-3 py-2 font-medium">PCA Domain</th>
-                <th className="hidden px-3 py-2 font-medium md:table-cell">Role</th>
-              </tr>
-            </thead>
-            <tbody>
-              {labServices.map((s) => (
-                <tr key={s.id} className="border-t border-border/60">
-                  <td className="px-3 py-2 font-medium">{s.name}</td>
-                  <td className="px-3 py-2 font-mono">
-                    {s.port ?? "—"}
-                  </td>
-                  <td className="px-3 py-2">{s.exam}</td>
-                  <td className="hidden px-3 py-2 text-muted-foreground md:table-cell">
-                    {s.role}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <section className="space-y-4">
+        <div className="flex items-baseline justify-between gap-4">
+          <h2 className="text-sm font-medium text-muted-foreground">Endpoints</h2>
+          <Link
+            href="/lab"
+            className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+          >
+            Setup
+          </Link>
         </div>
+        <ul className="overflow-hidden rounded-xl ring-1 ring-foreground/10">
+          {endpoints.map((s) => (
+            <li
+              key={s.id}
+              className="flex items-center justify-between gap-4 bg-card px-4 py-2.5 text-sm not-first:border-t not-first:border-border/60"
+            >
+              <span className="font-medium">{s.name}</span>
+              <a
+                href={s.url}
+                target="_blank"
+                rel="noreferrer"
+                className="font-mono tabular-nums text-muted-foreground hover:text-primary"
+              >
+                :{s.port}
+              </a>
+            </li>
+          ))}
+        </ul>
       </section>
     </div>
   );

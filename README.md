@@ -36,21 +36,22 @@ pca/
 | `content/notes/99-cheatsheet.md` | The one page I re-read the morning of the exam |
 | `content/drills/` | Exercise sets — question, my answer, the reference answer, why |
 | `content/exam/questions.json` | **The** question bank. 120 questions. Single source of truth |
-| `content/exam/simulator/index.html` | Standalone timed mock exam, opens offline in a browser |
+| `content/exam/attempts/` | Write-ups of my mock attempts, and the template |
 | `web/` | The same material as a browsable app. See [`web/README.md`](web/README.md) |
 | `lab/` | `compose.yaml` + configs. See [`lab/README.md`](lab/README.md) |
 | `progress/plan-4-weeks.md` | 12 sessions over 4 weeks, weighted by exam domains |
 
-### One bank, two front-ends
+### One bank, one app
 
-`content/exam/questions.json` is the only place questions are edited. Both
-readers derive from it and neither can drift:
+`content/exam/questions.json` is the only place questions are edited. The app
+regenerates `web/lib/data/quiz.ts` from it on every build (`npm run
+sync-content`, wired as a `prebuild` hook), so the two cannot drift. The
+generated file is gitignored and marked do-not-edit.
 
-- **`web/`** regenerates `lib/data/quiz.ts` from it on every build
-  (`npm run sync-content`, wired as `prebuild`). The generated file is marked
-  as such — never edit it.
-- **`content/exam/simulator/index.html`** is a self-contained page with the
-  bank inlined, so it works from `file://` with no server and no network.
+The exam runner lives at **`/quiz`** in the app: timed exam mode or practice
+mode, the domain-weighted draw, a question navigator, flag-for-review,
+multi-select questions, per-domain scoring against the 75% pass mark, and a
+full review linking each miss back to the note that covers it.
 
 ---
 
@@ -77,9 +78,6 @@ npm run dev
 | node-exporter | http://localhost:9100/metrics |
 | Pushgateway | http://localhost:9091 |
 | Blackbox exporter | http://localhost:9115 |
-
-The mock exam also opens with no tooling at all — double-click
-`content/exam/simulator/index.html`.
 
 ---
 
