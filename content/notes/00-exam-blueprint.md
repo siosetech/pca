@@ -11,14 +11,9 @@
 | Validity | 2 years |
 | Retake | One free retake included with the exam purchase |
 
-> Verify the current question count and passing score in the
-> [Candidate Handbook](https://docs.linuxfoundation.org/tc-content/notes/certification/lf-handbook2)
-> — these change and I should not trust a blog post for them.
->
-> `> TODO` fill in after reading the handbook: questions = ___, pass mark = ___
->
-> Until then the study app draws the pass line at **75%** (commonly reported).
-> Do not treat that as official.
+> Confirmed from the [Candidate Handbook](https://docs.linuxfoundation.org/tc-content/notes/certification/lf-handbook2):
+> **60 multiple-choice questions in 90 minutes**, closed-book, online proctored (PSI / OnVUE).
+> Pass mark is scaled by question difficulty with **75%** as the benchmark target.
 
 **This is a knowledge exam, not a hands-on one.** That changes how I study: the
 lab exists to build intuition and make facts stick, not to drill command speed.

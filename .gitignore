@@ -21,9 +21,10 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# ── Generated from content/exam/questions.json by web/scripts/sync-content.mjs
+# ── Generated from content/ by web/scripts/sync-content.mjs
 web/lib/data/quiz.ts
 web/lib/data/flashcards.ts
+web/lib/data/drills.ts
 
 # ── Local scratch and secrets ───────────────────────────────────────────────
 scratch/

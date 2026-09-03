@@ -1,0 +1,85 @@
+# Unit tests for alerting.yml rules using promtool test rules
+# Run via podman:
+#   podman run --rm --entrypoint promtool -v .\prometheus:/etc/prometheus:ro docker.io/prom/prometheus:v2.55.1 test rules /etc/prometheus/tests/alerting.test.yml
+
+rule_files:
+  - ../rules/alerting.yml
+
+evaluation_interval: 1m
+
+tests:
+  # Test 1: InstanceDown rule transitions: inactive -> pending -> firing
+  - interval: 1m
+    input_series:
+      - series: 'up{job="sample-app", instance="sample-app:8000"}'
+        values: '1 0 0 0 0'
+    alert_rule_test:
+      - eval_time: 0m
+        alertname: InstanceDown
+        exp_alerts: []
+
+      # At 1m, up has been 0 for 0-1m. Since `for: 1m` requires being active for 1 full minute,
+      # it is pending at 1m and does not fire yet.
+      - eval_time: 1m
+        alertname: InstanceDown
+        exp_alerts: []
+
+      # At 2m, up == 0 has persisted for >= 1m -> fires with labels and annotations.
+      - eval_time: 2m
+        alertname: InstanceDown
+        exp_alerts:
+          - exp_labels:
+              alertname: InstanceDown
+              severity: critical
+              team: sre
+              job: sample-app
+              instance: "sample-app:8000"
+            exp_annotations:
+              summary: "Instance sample-app:8000 is down"
+              description: "Job sample-app has been unreachable for more than 1 minute."
+
+  # Test 2: ProbeFailed rule transitions
+  - interval: 1m
+    input_series:
+      - series: 'probe_success{job="blackbox-http", instance="http://sample-app:8000/health"}'
+        values: '1 0 0 0'
+    alert_rule_test:
+      - eval_time: 1m
+        alertname: ProbeFailed
+        exp_alerts: []
+      - eval_time: 2m
+        alertname: ProbeFailed
+        exp_alerts:
+          - exp_labels:
+              alertname: ProbeFailed
+              severity: warning
+              team: sre
+              job: blackbox-http
+              instance: "http://sample-app:8000/health"
+            exp_annotations:
+              summary: "Blackbox probe failed for http://sample-app:8000/health"
+
+  # Test 3: HighErrorRate rule (> 5% error ratio for > 1m)
+  - interval: 1m
+    input_series:
+      - series: 'http_requests_total{job="sample-app", endpoint="/api/orders", code="200"}'
+        values: '100+100x10' # 100 requests per minute
+      - series: 'http_requests_total{job="sample-app", endpoint="/api/orders", code="500"}'
+        values: '0 0 10 20 30 40 50' # starts producing 10 errors/min (10/110 ≈ 9.1% > 5%)
+    alert_rule_test:
+      - eval_time: 1m
+        alertname: HighErrorRate
+        exp_alerts: []
+      # Needs 5m rate calculation window to populate and for: 1m
+      - eval_time: 5m
+        alertname: HighErrorRate
+        exp_alerts:
+          - exp_labels:
+              alertname: HighErrorRate
+              severity: warning
+              team: shop
+              job: sample-app
+              endpoint: /api/orders
+            exp_annotations:
+              summary: "High 5xx ratio on /api/orders"
+              description: "Error ratio is above 5% for job sample-app."

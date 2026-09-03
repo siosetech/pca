@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Activity } from "lucide-react";
+import { ProgressBackup } from "@/components/progress-backup";
 
 const links = [
   { href: "/", label: "Overview" },
@@ -41,10 +42,14 @@ export function SiteHeader() {
 export function SiteFooter() {
   return (
     <footer className="mt-auto border-t border-border/80">
-      <div className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-6 text-xs text-muted-foreground sm:flex-row sm:justify-between">
-        <p>Linux Foundation PCA — not official exam material.</p>
-        <p>90 minutes · multiple choice · English</p>
+      <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p>Linux Foundation PCA — not official exam material.</p>
+          <p className="text-muted-foreground/70">90 minutes · multiple choice · English</p>
+        </div>
+        <ProgressBackup />
       </div>
     </footer>
   );
 }
+

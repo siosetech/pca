@@ -55,14 +55,18 @@ curl.exe -X POST http://localhost:9090/-/reload
 curl.exe -X POST http://localhost:9093/-/reload
 
 # Validate before reloading — do this every single time
-podman run --rm -v .\prometheus:/etc/prometheus:ro docker.io/prom/prometheus:latest `
-  promtool check config /etc/prometheus/prometheus.yml
+podman run --rm --entrypoint promtool -v .\prometheus:/etc/prometheus:ro docker.io/prom/prometheus:v2.55.1 `
+  check config /etc/prometheus/prometheus.yml
 
-podman run --rm -v .\prometheus\rules:/rules:ro docker.io/prom/prometheus:latest `
-  promtool check rules /rules/alerts.rules.yml /rules/recording.rules.yml
+podman run --rm --entrypoint promtool -v .\prometheus\rules:/rules:ro docker.io/prom/prometheus:v2.55.1 `
+  check rules /rules/alerting.yml /rules/recording.yml
 
-podman run --rm -v .\alertmanager:/etc/alertmanager:ro docker.io/prom/alertmanager:latest `
-  amtool check-config /etc/alertmanager/alertmanager.yml
+podman run --rm --entrypoint amtool -v .\alertmanager:/etc/alertmanager:ro docker.io/prom/alertmanager:v0.27.0 `
+  check-config /etc/alertmanager/alertmanager.yml
+
+# Run alerting rule unit tests (promtool test rules)
+podman run --rm --entrypoint promtool -v .\prometheus:/etc/prometheus:ro docker.io/prom/prometheus:v2.55.1 `
+  test rules /etc/prometheus/tests/alerting.test.yml
 ```
 
 ## Exercises the lab is built for

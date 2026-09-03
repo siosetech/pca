@@ -117,6 +117,7 @@ const same = (a: number[], b: number[]) =>
 const label = (k: DomainKey) => DOMAINS.find((d) => d.key === k)?.label ?? k;
 
 function readHistory(): Attempt[] {
+  if (typeof window === "undefined") return [];
   try {
     return JSON.parse(localStorage.getItem(HISTORY_KEY) ?? "[]") as Attempt[];
   } catch {
@@ -153,10 +154,8 @@ export function QuizExam() {
   const [startedAt, setStartedAt] = useState(0);
   const [elapsed, setElapsed] = useState(0);
   const [now, setNow] = useState(0);
-  const [history, setHistory] = useState<Attempt[]>([]);
+  const [history, setHistory] = useState<Attempt[]>(() => readHistory());
   const finishRef = useRef<() => void>(() => {});
-
-  useEffect(() => setHistory(readHistory()), []);
 
   const poolSize = useMemo(
     () => quizQuestions.filter((q) => includePapers || q.form === null).length,
@@ -172,7 +171,6 @@ export function QuizExam() {
   useEffect(() => {
     if (phase !== "exam") return;
     const t = setInterval(() => setNow(Date.now()), 1000);
-    setNow(Date.now());
     return () => clearInterval(t);
   }, [phase]);
 
@@ -236,11 +234,14 @@ export function QuizExam() {
     setFilter("all");
     setPhase("results");
   }, [items, picks, startedAt, mode, paper]);
-  finishRef.current = finish;
+
+  useEffect(() => {
+    finishRef.current = finish;
+  }, [finish]);
 
   const go = useCallback(
     (n: number) => {
-      setIdx((prev) => Math.max(0, Math.min(items.length - 1, n)) || 0);
+      setIdx(Math.max(0, Math.min(items.length - 1, n)) || 0);
       setRevealed(false);
       setConfirmFinish(false);
       if (typeof window !== "undefined") window.scrollTo(0, 0);
@@ -698,9 +699,10 @@ export function QuizExam() {
   const picked = picks[idx] ?? [];
   const graded = revealed && !timed;
   const correct = graded && same(picked, q.correct);
+  const currentTs = now || startedAt;
   const left = timed
-    ? (deadline - (now || Date.now())) / 1000
-    : ((now || Date.now()) - startedAt) / 1000;
+    ? (deadline - currentTs) / 1000
+    : (currentTs - startedAt) / 1000;
   const answered = picks.filter((p) => p.length).length;
 
   return (
@@ -874,7 +876,11 @@ export function QuizExam() {
                   className="ml-auto"
                   onClick={() => {
                     setNavOpen(false);
-                    answered < items.length ? setConfirmFinish(true) : finish();
+                    if (answered < items.length) {
+                      setConfirmFinish(true);
+                    } else {
+                      finish();
+                    }
                   }}
                 >
                   Finish &amp; score

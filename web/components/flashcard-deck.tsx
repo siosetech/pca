@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -69,6 +69,7 @@ function preview(state: CardState, grade: Grade, now: number): string {
 }
 
 function load(): Store {
+  if (typeof window === "undefined") return {};
   try {
     return JSON.parse(localStorage.getItem(STORE_KEY) ?? "{}") as Store;
   } catch {
@@ -130,20 +131,16 @@ const GRADES: { grade: Grade; label: string; key: string; tone: string }[] = [
   { grade: 3, label: "Easy", key: "4", tone: "border-primary/50 text-primary hover:bg-primary/10" },
 ];
 
+const emptySubscribe = () => () => {};
+
 export function FlashcardDeck() {
-  const [store, setStore] = useState<Store>({});
-  const [ready, setReady] = useState(false);
+  const ready = useSyncExternalStore(emptySubscribe, () => true, () => false);
+  const [store, setStore] = useState<Store>(() => load());
   const [decks, setDecks] = useState<DomainKey[]>(DOMAINS.map((d) => d.key));
   const [queue, setQueue] = useState<string[] | null>(null);
   const [shown, setShown] = useState(false);
   const [counts, setCounts] = useState({ again: 0, good: 0 });
   const [now, setNow] = useState(() => Date.now());
-
-  useEffect(() => {
-    setStore(load());
-    setNow(Date.now());
-    setReady(true);
-  }, []);
 
   const byId = useMemo(() => new Map(flashcards.map((c) => [c.id, c])), []);
   const pool = useMemo(() => flashcards.filter((c) => decks.includes(c.domain)), [decks]);

@@ -55,7 +55,7 @@ function buildQuiz() {
         const base = raw.map(([k, v]) => [k, Math.floor(v)]);
         let left = 60 - base.reduce((a, [, v]) => a + v, 0);
         raw
-          .map(([k, v], i) => [v - Math.floor(v), i])
+          .map(([, v], i) => [v - Math.floor(v), i])
           .sort((a, b) => b[0] - a[0])
           .forEach(([, i]) => {
             if (left > 0) {
@@ -234,12 +234,109 @@ ${rows}
   return { count: unique.length, byDomain: unique.reduce((a, c) => ({ ...a, [c.domain]: (a[c.domain] ?? 0) + 1 }), {}) };
 }
 
+/* ── PromQL drills ────────────────────────────────────────────────────── */
+
+function buildDrills() {
+  const drillFiles = [
+    { file: "drills/01-selectors.md", id: "01", shortTitle: "Selectors" },
+    { file: "drills/02-rates-and-counters.md", id: "02", shortTitle: "Rates & Counters" },
+    { file: "drills/03-aggregation-and-matching.md", id: "03", shortTitle: "Aggregation & Joins" },
+    { file: "drills/04-histograms-and-slo.md", id: "04", shortTitle: "Histograms & SLOs" },
+  ];
+
+  const sets = [];
+  let totalItems = 0;
+
+  for (const entry of drillFiles) {
+    const raw = readFileSync(resolve(contentDir, entry.file), "utf8");
+    const headingMatch = raw.match(/^#\s+(.*?)$/m);
+    const title = headingMatch ? headingMatch[1].trim() : entry.shortTitle;
+
+    const regex = /###\s+(\d+)\.\s+([\s\S]*?)(?=(?:###\s+\d+\.|$))/g;
+    const items = [];
+    let match;
+
+    while ((match = regex.exec(raw)) !== null) {
+      const num = parseInt(match[1], 10);
+      const rest = match[2].trim();
+      const detailsIdx = rest.indexOf("<details>");
+      let prompt = "";
+      let details = "";
+
+      if (detailsIdx !== -1) {
+        prompt = rest.slice(0, detailsIdx).trim();
+        details = rest
+          .slice(detailsIdx)
+          .replace(/<\/?details>/g, "")
+          .replace(/<summary>.*?<\/summary>/g, "")
+          .trim();
+      } else {
+        prompt = rest;
+      }
+
+      let query = "";
+      let explanation = details;
+      const codeMatch = details.match(/```(?:promql|yaml|bash|sh|powershell|)\s*\n([\s\S]*?)\n```/);
+      if (codeMatch) {
+        query = codeMatch[1].trim();
+        explanation = details.replace(codeMatch[0], "").trim();
+      }
+
+      items.push({
+        id: `${entry.id}-${num}`,
+        num,
+        prompt,
+        query,
+        explanation,
+      });
+    }
+
+    totalItems += items.length;
+    sets.push({
+      id: entry.id,
+      slug: entry.file.replace(/^drills\//, "").replace(/\.md$/, ""),
+      title,
+      shortTitle: entry.shortTitle,
+      items,
+    });
+  }
+
+  const setCode = JSON.stringify(sets, null, 2);
+
+  writeFileSync(
+    resolve(dataDir, "drills.ts"),
+    `${BANNER("content/drills/*.md")}
+export type DrillItem = {
+  id: string;
+  num: number;
+  prompt: string;
+  query?: string;
+  explanation: string;
+};
+
+export type DrillSet = {
+  id: string;
+  slug: string;
+  title: string;
+  shortTitle: string;
+  items: DrillItem[];
+};
+
+export const drillSets: DrillSet[] = ${setCode};
+`
+  );
+
+  return { setsCount: sets.length, itemsCount: totalItems };
+}
+
 /* ── run ──────────────────────────────────────────────────────────────── */
 
 const quiz = buildQuiz();
 const cards = buildFlashcards();
+const drills = buildDrills();
 console.log(
   `sync-content: ${quiz.count} questions (${quiz.multi} multi-select) -> lib/data/quiz.ts\n` +
     `sync-content: ${cards.count} flashcards -> lib/data/flashcards.ts ` +
-    JSON.stringify(cards.byDomain)
+    JSON.stringify(cards.byDomain) +
+    `\nsync-content: ${drills.itemsCount} drill items (${drills.setsCount} sets) -> lib/data/drills.ts`
 );
